@@ -9,3 +9,6 @@
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+*.mtc*
+*.ilg
+*.ind
