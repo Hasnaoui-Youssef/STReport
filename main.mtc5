@@ -9,8 +9,8 @@
 {\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {3.3.4}\else \textLR {4.3.3}\fi }ECDSA Signature Generation}{\reset@font\mtcSSfont 50}{}}
 {\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {4.3.4}\else \textLR {4.3.4}\fi }ECDSA Public Key and Signature Exchange}{\reset@font\mtcSSfont 52}{}}
 {\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {5.3.4}\else \textLR {4.3.5}\fi }ECDSA Signature Verification}{\reset@font\mtcSSfont 53}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {6.3.4}\else \textLR {4.3.6}\fi }ECDH Public Key Exchange}{\reset@font\mtcSSfont 56}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {7.3.4}\else \textLR {4.3.7}\fi }ECDH Shared Secret Generation}{\reset@font\mtcSSfont 56}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {8.3.4}\else \textLR {4.3.8}\fi }AES GCM Key and IV Derivation}{\reset@font\mtcSSfont 57}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {9.3.4}\else \textLR {4.3.9}\fi }AES GCM Symmetric Encryption}{\reset@font\mtcSSfont 58}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {10.3.4}\else \textLR {4.3.10}\fi }Message Decryption and Tag Verification}{\reset@font\mtcSSfont 59}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {6.3.4}\else \textLR {4.3.6}\fi }ECDH Public Key Exchange}{\reset@font\mtcSSfont 55}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {7.3.4}\else \textLR {4.3.7}\fi }ECDH Shared Secret Generation}{\reset@font\mtcSSfont 55}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {8.3.4}\else \textLR {4.3.8}\fi }AES GCM Key and IV Derivation}{\reset@font\mtcSSfont 56}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {9.3.4}\else \textLR {4.3.9}\fi }AES GCM Symmetric Encryption}{\reset@font\mtcSSfont 57}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {10.3.4}\else \textLR {4.3.10}\fi }Message Decryption and Tag Verification}{\reset@font\mtcSSfont 58}{}}

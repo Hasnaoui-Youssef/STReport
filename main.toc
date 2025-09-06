@@ -57,8 +57,8 @@
 \contentsline {subsection}{\numberline {\if@rl \I {1.5.2}\else \textLR {2.5.1}\fi }Regular Expressions:}{23}{}%
 \contentsline {subsubsection}{\numberline {\if@rl \I {1.5.2}\else \textLR {2.5.1}\fi .1}Operations}{23}{}%
 \contentsline {subsubsection}{\numberline {\if@rl \I {1.5.2}\else \textLR {2.5.1}\fi .2}IEEE POSIX Standard}{24}{}%
-\contentsline {subsection}{\numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi }Templates \& File Manipulation}{25}{}%
-\contentsline {subsubsection}{\numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .1}Template Definition}{25}{}%
+\contentsline {subsection}{\numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi }Templates \& File Manipulation}{24}{}%
+\contentsline {subsubsection}{\numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .1}Template Definition}{24}{}%
 \contentsline {subsubsection}{\numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .2}Parameterization}{25}{}%
 \contentsline {subsubsection}{\numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .3}Template Execution}{25}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {3.5.2}\else \textLR {2.5.3}\fi }CMSIS-Toolbox Generators}{25}{}%
@@ -68,18 +68,18 @@
 \contentsline {section}{\numberline {\filterminitoc {3.}1}Project Specification}{29}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {1.1.3}\else \textLR {3.1.1}\fi }Functional Requirements}{29}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {2.1.3}\else \textLR {3.1.2}\fi }Non-Functional Requirements}{30}{}%
-\contentsline {section}{\numberline {\filterminitoc {3.}2}Cryptographic Decisions and Context}{31}{}%
+\contentsline {section}{\numberline {\filterminitoc {3.}2}Cryptographic Decisions and Context}{30}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {1.2.3}\else \textLR {3.2.1}\fi }Elliptic Curve Diffie-Hellman}{31}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {2.2.3}\else \textLR {3.2.2}\fi }Elliptic Curve Digital Signature Algorithm}{32}{}%
-\contentsline {subsection}{\numberline {\if@rl \I {3.2.3}\else \textLR {3.2.3}\fi }NIST P-256 Curve}{34}{}%
+\contentsline {subsection}{\numberline {\if@rl \I {3.2.3}\else \textLR {3.2.3}\fi }NIST P-256 Curve}{33}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {4.2.3}\else \textLR {3.2.4}\fi }AES Galois Counter Mode}{34}{}%
 \contentsline {section}{\numberline {\filterminitoc {3.}3}Use-Case Diagram}{36}{}%
 \contentsline {section}{\numberline {\filterminitoc {3.}4}Work Environment}{38}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {1.4.3}\else \textLR {3.4.1}\fi }Hardware Resources}{38}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {2.4.3}\else \textLR {3.4.2}\fi }Software Resources}{38}{}%
-\contentsline {subsubsection}{\numberline {\if@rl \I {2.4.3}\else \textLR {3.4.2}\fi .1}IAR Embedded Workbench}{39}{}%
+\contentsline {subsubsection}{\numberline {\if@rl \I {2.4.3}\else \textLR {3.4.2}\fi .1}IAR Embedded Workbench}{38}{}%
 \contentsline {subsubsection}{\numberline {\if@rl \I {2.4.3}\else \textLR {3.4.2}\fi .2}STM32CubeMX}{39}{}%
-\contentsline {subsubsection}{\numberline {\if@rl \I {2.4.3}\else \textLR {3.4.2}\fi .3}Yet Another Terminal (YAT)}{40}{}%
+\contentsline {subsubsection}{\numberline {\if@rl \I {2.4.3}\else \textLR {3.4.2}\fi .3}Yet Another Terminal (YAT)}{39}{}%
 \select@language {english}
 \contentsline {chapter}{\numberline {\textLR {4}}\bgroup \beginL \latintext Solution Implementation\endL \egroup }{41}{}%
 \contentsline {section}{\numberline {\filterminitoc {4.}1}Demo Overview}{42}{}%
@@ -93,11 +93,13 @@
 \contentsline {subsection}{\numberline {\if@rl \I {3.3.4}\else \textLR {4.3.3}\fi }ECDSA Signature Generation}{50}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {4.3.4}\else \textLR {4.3.4}\fi }ECDSA Public Key and Signature Exchange}{52}{}%
 \contentsline {subsection}{\numberline {\if@rl \I {5.3.4}\else \textLR {4.3.5}\fi }ECDSA Signature Verification}{53}{}%
-\contentsline {subsection}{\numberline {\if@rl \I {6.3.4}\else \textLR {4.3.6}\fi }ECDH Public Key Exchange}{56}{}%
-\contentsline {subsection}{\numberline {\if@rl \I {7.3.4}\else \textLR {4.3.7}\fi }ECDH Shared Secret Generation}{56}{}%
-\contentsline {subsection}{\numberline {\if@rl \I {8.3.4}\else \textLR {4.3.8}\fi }AES GCM Key and IV Derivation}{57}{}%
-\contentsline {subsection}{\numberline {\if@rl \I {9.3.4}\else \textLR {4.3.9}\fi }AES GCM Symmetric Encryption}{58}{}%
-\contentsline {subsection}{\numberline {\if@rl \I {10.3.4}\else \textLR {4.3.10}\fi }Message Decryption and Tag Verification}{59}{}%
+\contentsline {subsection}{\numberline {\if@rl \I {6.3.4}\else \textLR {4.3.6}\fi }ECDH Public Key Exchange}{55}{}%
+\contentsline {subsection}{\numberline {\if@rl \I {7.3.4}\else \textLR {4.3.7}\fi }ECDH Shared Secret Generation}{55}{}%
+\contentsline {subsection}{\numberline {\if@rl \I {8.3.4}\else \textLR {4.3.8}\fi }AES GCM Key and IV Derivation}{56}{}%
+\contentsline {subsection}{\numberline {\if@rl \I {9.3.4}\else \textLR {4.3.9}\fi }AES GCM Symmetric Encryption}{57}{}%
+\contentsline {subsection}{\numberline {\if@rl \I {10.3.4}\else \textLR {4.3.10}\fi }Message Decryption and Tag Verification}{58}{}%
+\select@language {english}
+\contentsline {chapter}{Bibliography}{60}{}%
 \select@language {english}
 \contentsline {chapter}{Annexes}{61}{}%
 \contentsline {section}{Annexe 1.~Exemple d'annexe}{61}{}%

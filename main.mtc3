@@ -30,8 +30,8 @@
 {\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {1.5.2}\else \textLR {2.5.1}\fi }Regular Expressions:}{\reset@font\mtcSSfont 23}{}}
 {\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {1.5.2}\else \textLR {2.5.1}\fi .1}Operations}{\reset@font\mtcSSSfont 23}{}}
 {\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {1.5.2}\else \textLR {2.5.1}\fi .2}IEEE POSIX Standard}{\reset@font\mtcSSSfont 24}{}}
-{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi }Templates \& File Manipulation}{\reset@font\mtcSSfont 25}{}}
-{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .1}Template Definition}{\reset@font\mtcSSSfont 25}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi }Templates \& File Manipulation}{\reset@font\mtcSSfont 24}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .1}Template Definition}{\reset@font\mtcSSSfont 24}{}}
 {\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .2}Parameterization}{\reset@font\mtcSSSfont 25}{}}
 {\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.5.2}\else \textLR {2.5.2}\fi .3}Template Execution}{\reset@font\mtcSSSfont 25}{}}
 {\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {3.5.2}\else \textLR {2.5.3}\fi }CMSIS-Toolbox Generators}{\reset@font\mtcSSfont 25}{}}

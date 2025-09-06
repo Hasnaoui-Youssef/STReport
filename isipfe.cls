@@ -32,6 +32,7 @@
 % load the book class using a4paper
 \LoadClass[11pt,a4paper, oneside]{book}
 \usepackage[a4paper]{geometry}
+\usepackage{newtxtext, newtxmath}
 
 % give the header a bit more room for fancyhdr below
 % otherwise LaTeX will spew on each page
