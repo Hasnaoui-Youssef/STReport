@@ -1,0 +1,65 @@
+\babel@toc {english}{}\relax 
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\contentsline {xchapter}{Internship Context}{3}{}%
+\contentsline {figure}{\numberline {\if@rl \I {1.1}\else \textLR {1.1}\fi }{\ignorespaces STMicroelectronics Activity Sectors}}{3}{}%
+\contentsline {figure}{\numberline {\if@rl \I {2.1}\else \textLR {1.2}\fi }{\ignorespaces STMicroelectronics Worldwide Presence}}{4}{}%
+\contentsline {figure}{\numberline {\if@rl \I {3.1}\else \textLR {1.3}\fi }{\ignorespaces STMicroelectronics Tunis}}{5}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Theory and Key Concepts}{10}{}%
+\contentsline {figure}{\numberline {\if@rl \I {1.2}\else \textLR {2.1}\fi }{\ignorespaces Distribution of control instructions and mispredictions over CoreMark execution.}}{14}{}%
+\contentsline {figure}{\numberline {\if@rl \I {2.2}\else \textLR {2.2}\fi }{\ignorespaces Compilation Process Diagram}}{15}{}%
+\contentsline {figure}{\numberline {\if@rl \I {3.2}\else \textLR {2.3}\fi }{\ignorespaces Software Packs Types}}{17}{}%
+\contentsline {figure}{\numberline {\if@rl \I {4.2}\else \textLR {2.4}\fi }{\ignorespaces Software Component Interface}}{19}{}%
+\contentsline {figure}{\numberline {\if@rl \I {5.2}\else \textLR {2.5}\fi }{\ignorespaces Csolution Operation}}{20}{}%
+\contentsline {figure}{\numberline {\if@rl \I {6.2}\else \textLR {2.6}\fi }{\ignorespaces Cbuild Workflow}}{21}{}%
+\contentsline {figure}{\numberline {\if@rl \I {7.2}\else \textLR {2.7}\fi }{\ignorespaces Running and Debugging Workflow}}{22}{}%
+\contentsline {figure}{\numberline {\if@rl \I {8.2}\else \textLR {2.8}\fi }{\ignorespaces Templating Process}}{25}{}%
+\contentsline {figure}{\numberline {\if@rl \I {9.2}\else \textLR {2.9}\fi }{\ignorespaces Generator Integration in CMSIS-Toolbox}}{26}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Objectives Specification and Work Environment}{29}{}%
+\contentsline {figure}{\numberline {\if@rl \I {1.3}\else \textLR {3.1}\fi }{\ignorespaces Elliptic Curve Diffie Hellman Process}}{31}{}%
+\contentsline {figure}{\numberline {\if@rl \I {2.3}\else \textLR {3.2}\fi }{\ignorespaces Typical Digital Signature Process}}{33}{}%
+\contentsline {figure}{\numberline {\if@rl \I {3.3}\else \textLR {3.3}\fi }{\ignorespaces AES Galois Counter Mode Process }}{35}{}%
+\contentsline {figure}{\numberline {\if@rl \I {4.3}\else \textLR {3.4}\fi }{\ignorespaces Use-Case Diagram for Cryptographic Peripherals (AES and PKA)}}{36}{}%
+\contentsline {figure}{\numberline {\if@rl \I {5.3}\else \textLR {3.5}\fi }{\ignorespaces STM32U545 Nucleo Board}}{38}{}%
+\contentsline {figure}{\numberline {\if@rl \I {6.3}\else \textLR {3.6}\fi }{\ignorespaces IAR Embedded Workbench}}{39}{}%
+\contentsline {figure}{\numberline {\if@rl \I {7.3}\else \textLR {3.7}\fi }{\ignorespaces STM32CubeMX}}{39}{}%
+\addvspace {10\p@ }
+\contentsline {xchapter}{Solution Implementation}{42}{}%
+\contentsline {figure}{\numberline {\if@rl \I {1.4}\else \textLR {4.1}\fi }{\ignorespaces Sequence Diagram for "CryptoEngine" Demo }}{44}{}%
+\contentsline {figure}{\numberline {\if@rl \I {2.4}\else \textLR {4.2}\fi }{\ignorespaces PKA ECC Fp Scalar Multiplication}}{46}{}%
+\contentsline {figure}{\numberline {\if@rl \I {3.4}\else \textLR {4.3}\fi }{\ignorespaces Code Implementation of NIST P-256 Parameters}}{47}{}%
+\contentsline {figure}{\numberline {\if@rl \I {4.4}\else \textLR {4.4}\fi }{\ignorespaces HAL PKA ECC Input Structure}}{48}{}%
+\contentsline {figure}{\numberline {\if@rl \I {5.4}\else \textLR {4.5}\fi }{\ignorespaces PKA ECC Setup}}{48}{}%
+\contentsline {figure}{\numberline {\if@rl \I {6.4}\else \textLR {4.6}\fi }{\ignorespaces ECDSA Private Key}}{48}{}%
+\contentsline {figure}{\numberline {\if@rl \I {7.4}\else \textLR {4.7}\fi }{\ignorespaces ECDSA Public Key Generation Function}}{49}{}%
+\contentsline {figure}{\numberline {\if@rl \I {8.4}\else \textLR {4.8}\fi }{\ignorespaces Generated ECDSA Public Key}}{49}{}%
+\contentsline {figure}{\numberline {\if@rl \I {9.4}\else \textLR {4.9}\fi }{\ignorespaces ECDH Private Key}}{49}{}%
+\contentsline {figure}{\numberline {\if@rl \I {10.4}\else \textLR {4.10}\fi }{\ignorespaces ECDH Public Key Generation Function}}{50}{}%
+\contentsline {figure}{\numberline {\if@rl \I {11.4}\else \textLR {4.11}\fi }{\ignorespaces Generated ECDH Public Key }}{50}{}%
+\contentsline {figure}{\numberline {\if@rl \I {12.4}\else \textLR {4.12}\fi }{\ignorespaces ECDSA Sign Operation }}{50}{}%
+\contentsline {figure}{\numberline {\if@rl \I {13.4}\else \textLR {4.13}\fi }{\ignorespaces HAL PKA ECDSA Input Structure}}{51}{}%
+\contentsline {figure}{\numberline {\if@rl \I {14.4}\else \textLR {4.14}\fi }{\ignorespaces HAL PKA ECDSA Input Structure}}{51}{}%
+\contentsline {figure}{\numberline {\if@rl \I {15.4}\else \textLR {4.15}\fi }{\ignorespaces ECDSA Integer "K"}}{51}{}%
+\contentsline {figure}{\numberline {\if@rl \I {16.4}\else \textLR {4.16}\fi }{\ignorespaces ECDSA Signing Function}}{52}{}%
+\contentsline {figure}{\numberline {\if@rl \I {17.4}\else \textLR {4.17}\fi }{\ignorespaces Generated ECDSA Signature}}{52}{}%
+\contentsline {figure}{\numberline {\if@rl \I {18.4}\else \textLR {4.18}\fi }{\ignorespaces Received ECDSA Signature}}{53}{}%
+\contentsline {figure}{\numberline {\if@rl \I {19.4}\else \textLR {4.19}\fi }{\ignorespaces PKA "ECDSA Verification" Mode}}{54}{}%
+\contentsline {figure}{\numberline {\if@rl \I {20.4}\else \textLR {4.20}\fi }{\ignorespaces ECDSA Verification Function }}{55}{}%
+\contentsline {figure}{\numberline {\if@rl \I {21.4}\else \textLR {4.21}\fi }{\ignorespaces Successful ECDSA Signature Verification}}{55}{}%
+\contentsline {figure}{\numberline {\if@rl \I {22.4}\else \textLR {4.22}\fi }{\ignorespaces Failed ECDSA Signature Verification}}{56}{}%
+\contentsline {figure}{\numberline {\if@rl \I {23.4}\else \textLR {4.23}\fi }{\ignorespaces Received ECDH Public Key}}{56}{}%
+\contentsline {figure}{\numberline {\if@rl \I {24.4}\else \textLR {4.24}\fi }{\ignorespaces ECDH Shared Secret Generation Function}}{57}{}%
+\contentsline {figure}{\numberline {\if@rl \I {25.4}\else \textLR {4.25}\fi }{\ignorespaces ECDH Shared Secret}}{57}{}%
+\contentsline {figure}{\numberline {\if@rl \I {26.4}\else \textLR {4.26}\fi }{\ignorespaces AES HAL Structure}}{58}{}%
+\contentsline {figure}{\numberline {\if@rl \I {27.4}\else \textLR {4.27}\fi }{\ignorespaces AES Structure Initialization}}{58}{}%
+\contentsline {figure}{\numberline {\if@rl \I {28.4}\else \textLR {4.28}\fi }{\ignorespaces AES GCM Key and Initialization Vector Derivation}}{59}{}%
+\contentsline {figure}{\numberline {\if@rl \I {29.4}\else \textLR {4.29}\fi }{\ignorespaces AES GCM Key and Initialization Vector Derivation}}{59}{}%
+\contentsline {figure}{\numberline {\if@rl \I {30.4}\else \textLR {4.30}\fi }{\ignorespaces Message Decryption Output}}{60}{}%
+\vspace {3.8mm}
+\contentsline {figure}{Annexe 2.1~~~Logo d'entreprise}{62}{}%
+\babel@toc {english}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {french}{}\relax 
+\babel@toc {english}{}\relax 

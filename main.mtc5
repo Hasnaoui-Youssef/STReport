@@ -1,0 +1,16 @@
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {\filterminitoc {4.}1}Demo Overview}{\reset@font\mtcSfont 42}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {\filterminitoc {4.}2}Sequence Diagram}{\reset@font\mtcSfont 44}{}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {\filterminitoc {4.}3}Demonstration Details and Explanation}{\reset@font\mtcSfont 45}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {1.3.4}\else \textLR {4.3.1}\fi }ECDSA Key Pair Generation}{\reset@font\mtcSSfont 45}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {1.3.4}\else \textLR {4.3.1}\fi .1}PKA Peripheral Initialization}{\reset@font\mtcSSSfont 45}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {1.3.4}\else \textLR {4.3.1}\fi .2}ECC Scalar Multiplication }{\reset@font\mtcSSSfont 45}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.3.4}\else \textLR {4.3.2}\fi }ECDH Key Pair Generation}{\reset@font\mtcSSfont 49}{}}
+{\reset@font\mtcSSSfont\mtc@string\contentsline{subsubsection}{\noexpand \leavevmode \numberline {\if@rl \I {2.3.4}\else \textLR {4.3.2}\fi .1}ECC Scalar Multiplication}{\reset@font\mtcSSSfont 49}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {3.3.4}\else \textLR {4.3.3}\fi }ECDSA Signature Generation}{\reset@font\mtcSSfont 50}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {4.3.4}\else \textLR {4.3.4}\fi }ECDSA Public Key and Signature Exchange}{\reset@font\mtcSSfont 52}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {5.3.4}\else \textLR {4.3.5}\fi }ECDSA Signature Verification}{\reset@font\mtcSSfont 53}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {6.3.4}\else \textLR {4.3.6}\fi }ECDH Public Key Exchange}{\reset@font\mtcSSfont 56}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {7.3.4}\else \textLR {4.3.7}\fi }ECDH Shared Secret Generation}{\reset@font\mtcSSfont 56}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {8.3.4}\else \textLR {4.3.8}\fi }AES GCM Key and IV Derivation}{\reset@font\mtcSSfont 57}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {9.3.4}\else \textLR {4.3.9}\fi }AES GCM Symmetric Encryption}{\reset@font\mtcSSfont 58}{}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {\if@rl \I {10.3.4}\else \textLR {4.3.10}\fi }Message Decryption and Tag Verification}{\reset@font\mtcSSfont 59}{}}
