@@ -1,173 +1,110 @@
 \chapter{Objectives Specification and Work Environment}
 
 \section*{Introduction}
-This chapter will first define the project's functional and non-functional requirements, then we will discuss the chosen cryptographic algorithms, explaining the reasoning behind their selection and offering an overview of how each algorithm works. Finally we will specify the hardware and software resources necessary for this demonstration. 
+This chapter will first define the project's functional and non-functional requirements, then we will discuss the chosen structural deceisions , explaining the reasoning behind their selection. Finally we will specify the hardware and software resources necessary for this project. 
 
 \section{Project Specification}
 Requirements analysis is a fundamental phase in every project realization process. It is based on the study of the project's features as well as the constraints. In this section, we will cover both the functional and non-functional requirements.
 
 \subsection{Functional Requirements}
 
-The goal of the "CryptoEngine" demo is to establish secure communication between an STM32XX MCU using "CryptoEngine" and an STM32U5 MCU using PKA and AES. Secure communication means guaranteeing the three key security concepts: confidentiality, integrity, and authenticity.
+The goal of the project is to generate a running CoreMark project on STM32 devices using CMSIS-Toolbox in an automated way. Within this context, this means guaranteeing the following concepts:
 
-\begin{itemize}
-    \item \textbf{Confidentiality:} Ensuring that only authorized parties can understand the messages exchanged. This is achieved through:
-    \begin{itemize}
-        \item \textbf{Asymmetric Key Management:} Implement asymmetric key  management for ECDSA and ECDH keys, ensuring secure storage and handling of private keys and generation of public keys.
-        \item \textbf{Shared Secret Computation:} Compute the ECDH shared secret using the exchanged public keys, which will be used as the basis for deriving symmetric encryption keys.
-    \end{itemize}
-    
-    \item \textbf{Integrity:} Ensuring that the message has not been altered during transmission. This is achieved through:
-    \begin{itemize}
-       \item \textbf{Symmetric Message Encryption and Decryption:} Use AES GCM symmetric encryption to encrypt messages and verify their integrity during transmission. This also serves as an authentication check.
-    \end{itemize}
-    
-    \item \textbf{Authenticity:} Ensuring that the communicating parties are who they claim to be. This is achieved through:
-    \begin{itemize}
-        \item \textbf{Signature Generation and Verification:} Enable the generation and verification of digital signatures using ECDSA to ensure the authenticity of the communicating parties.
-    \end{itemize}
-\end{itemize}
+%\begin{itemize}
+%    \item \textbf{Automation:} Ensuring that the user can generate a ready-to-build project without manually setting up peripheral configurations or memory layouts.
+%    \item \textbf{Device Adaptability:} The project template must be dynamic in order to accomodate for the device specific characteristics of STM32 MCUs.
+%    \item \textbf{CoreMark Integration:} CoreMark must be pre-configured and integrated within the project so that it can be executed immediately without further setup.
+%    \item \textbf{Result Reporting:} The CoreMark results must be ouput in a standardized format, enabling consistent performance comparisons between devices.
+%    \item \textbf{Multi-Toolchain Support:} The user should be able to build the project using any of the main embedded systems compilers without any extra configuration steps.
+%\end{itemize}
+%
+%Table \ref{tab:functional_requirements} neatly summarizes the functional requirements for our project.
 
-Establishing a secure, authenticated encryption system using modern cryptographic standards, including Elliptic Curve Digital Signature Algorithm (ECDSA) for digital signatures, Elliptic Curve Diffie-Hellman (ECDH) for key exchange, and Advanced Encryption Standard Galois Counter Mode (AES GCM) for encryption and authentication, is the primary goal.
-
-Table \ref{tab:functional_requirements} neatly summarizes the functional requirements for our demonstration.
-
-\setlength{\tabcolsep}{10pt} % Adjust the padding
-\renewcommand{\arraystretch}{1.5} % Adjust the row height
-
-\begin{table}[h]
-\centering
-\caption{Functional Requirements for Secure Communication}
-\label{tab:functional_requirements}
-\begin{tabular}{|m{2.5cm}|p{3.5cm}|p{9cm}|}
-\hline
-\textbf{Security Requirement} & \textbf{Component} & \textbf{Description} \\ \hline
-\multirow{2}{*}{Confidentiality} & Key Management & Implement key management for ECDSA and ECDH keys, ensuring
-secure storage and handling of private keys and generation of public keys. \\ \cline{2-3} 
- & Shared Secret Computation & Compute the ECDH shared secret using the exchanged public keys, which will be used as the basis for deriving symmetric encryption keys. \\ \hline
-Integrity & Message Encryption and Decryption & Use AES GCM to encrypt messages and verify their integrity during transmission. This also serves as an additional authenticity verification. \\ \hline
-Authenticity & Signature Generation and Verification & Enable the generation and verification of digital signatures using ECDSA to ensure the authenticity of the communicating parties. \\ \hline
-\end{tabular}
+\begin{table}[htbp]
+    \centering
+    \caption{Functional Requirements for CMSIS-Toolbox based automated benchmarking}
+    \label{tab:functional_requirements}
+    \begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
+        \toprule
+        Requirements & Description \\
+        \midrule
+        Automation & The system must automatically generate a CoreMark benchmarking project for STM32 devices without requiring manual configuration. \\ \midrule
+        Device Adaptability & The generated project must adapt to different STM32 families and configurations. \\ \midrule
+        CoreMark Integration & The CoreMark benchmark must be integrated and ready to run immediately on the target hardware. \\ \midrule
+        Result Reporting & The system must provide a standardized mechanism for reporting benchmark results. \\ \midrule
+        Multi-Toolchain Support & The project must support multiple compilers such as GCC, ARM Compiler, and IAR. \\ \bottomrule
+    \end{tabularx}
 \end{table}
-
 \subsection{Non-Functional Requirements}
 Below are the non-functional requirements or the constraints that the functional expectations must abide by:
 \begin{itemize}
-    \item \textbf{Clarity:} The demo should be clear and easily understandable, enabling users without extensive technical expertise to grasp the concepts.
-     \item \textbf{Transferability:} The knowledge and experience gained from the demo should empower users to apply cryptographic techniques in their own projects with ease.
-   \item \textbf{Modularity:} The demo should be designed in a modular way, allowing individual components to be easily reused or adapted for different applications.
-  \item \textbf{Feature Comparison:} The demo should highlight the new features and enhancements introduced by the "CryptoEngine" compared to its predecessors, demonstrating the improvements in security and usability.
+    \item \textbf{Performance Requirements:}
+    \begin{itemize}
+        \item \textbf{Low Overhead} The project must not add significant, if any overhead besides the CoreMark runtime, this insures the integrity of the benchmarking results.
+        \item \textbf{Compiler Optimizations} The project must provide the most optimal compiler configuration to ensure the maxmium performance results.
+    \end{itemize}
+   \item \textbf{Reliability Requirements:}
+   \begin{itemize}
+    \item \textbf{Correctness} The project must be functional and able to run without manual fixes.
+    \item \textbf{Consistency} The project must produce consistent results amongst STM32 devices.
+    \item \textbf{Error Handling} The project must fail gracefully and generate meaningful error messages.
+   \end{itemize}
+   \item \textbf{Usability Requirements:}
+   \begin{itemize}
+    \item \textbf{Ease of use} The generation process must be simple and intuitive, the project structure must be clear and consistent.
+    \item \textbf{Standardized Output} The results must be presented in a clear format to facilitate further automation and data collection.
+   \end{itemize}
 \end{itemize}
+\newpage
 
-\section{Cryptographic Decisions and Context}
-Before delving further into the implementation details, it is crucial to understand the rationale behind the cryptographic algorithms and protocols chosen for this demo. This section elucidates the reasons for selecting specific cryptographic methods and their relevance to the project's objectives.
-
-\subsection{Elliptic Curve Diffie-Hellman}
-Elliptic Curve Diffie-Hellman (ECDH) is a widely adopted key exchange protocol that facilitates secure and efficient key exchange between parties. We opted for ECDH due to its significant advantages over traditional algorithms like RSA, particularly in resource-constrained environments.
-
-\begin{itemize}
-    \item \textbf{Resource Efficiency:} ECDH is less resource-intensive compared to RSA, making it suitable for embedded systems with limited computational power and memory.
-     \item \textbf{Optimal Key Size:} A 256-bit key size strikes a balance between security and performance, making it suitable for embedded applications, including our demo.
-    
-\end{itemize}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=10cm]{img/ECDH.png}
-    \caption{Elliptic Curve Diffie Hellman Process}
-    \label{fig:ecdh_graph}
-\end{figure} 
-
-The ECDH process as shown in Figure \ref{fig:ecdh_graph}, begins with both the sender and the receiver independently generating their own private and public key pairs.
-
-The sender generates a private key \(a\) and computes their corresponding public key \(A = aG\), where \(G\) is a predefined generator point on the elliptic curve. Similarly, the receiver generates a private key \(b\) and computes their corresponding public key \(B = bG\).
-
-Once the key pairs are generated, the sender and receiver exchange their public keys over the insecure channel. The sender sends their public key \(A\) to the receiver, and the receiver sends their public key \(B\) to the sender. Despite the exchange occurring over an insecure channel, the private keys \(a\) and \(b\) remain confidential and are never transmitted.
-
-After receiving the public key from the other party, each participant computes the shared secret using their own private key and the received public key. The sender calculates the shared secret \(S = aB\) by multiplying their private key \(a\) with the receiver's public key \(B\). Conversely, the receiver calculates the shared secret \(S = bA\) by multiplying their private key \(b\) with the sender's public key \(A\). Due to the properties of elliptic curves, both computations result in the same shared secret \(S\), which can be used to derive a symmetric key for encrypting and decrypting subsequent communications.
-
-
-
-\subsection{Elliptic Curve Digital Signature Algorithm}
-The Elliptic Curve Digital Signature Algorithm (ECDSA) is a renowned digital signature algorithm that enables the generation and verification of digital signatures, ensuring data authenticity and integrity.
-
-\begin{itemize}
-    \item \textbf{Efficiency:} ECDSA is highly efficient, offering faster computations and smaller key sizes compared to other digital signature algorithms like RSA.
-    \item \textbf{Compatibility:} ECDSA is supported by the PKA (Public Key Accelerator) peripheral in STM32 products, making it an ideal choice for our demo.
-    \item \textbf{Security:} ECDSA provides strong security guarantees, leveraging the hardness of the elliptic curve discrete logarithm problem.
-\end{itemize}
-
-The graph in Figure \ref{fig:ecdsa_graph} illustrates a typical digital signature process that applies to many algorithms, including ECDSA. It involves two main phases: signing by the sender and verification by the receiver. 
-
-On the sender side, the process begins with key generation, where a pair of keys—a private key and a public key—are created. The sender then prepares a message that needs to be signed. This message is passed through a hashing algorithm to produce a message hash, ensuring that the message is represented in a fixed-size format. The private key and the message hash are then input into the signing algorithm to generate a signature. Subsequently, the message, signature, and public key are transmitted to the receiver.
-
-On the receiver side, the verification algorithm uses the public key, message hash, and signature to verify the authenticity of the message. The receiver independently generates the message hash using the same hashing algorithm as the sender. If the signature is valid, the sender is authenticated, providing confidence that the message has not been tampered with and is from the legitimate sender. Conversely, if the signature is invalid, the sender is not authenticated, indicating potential tampering or an illegitimate sender. This process ensures both the integrity and authenticity of the message, making digital signatures a necessity for secure communications.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=7.5cm]{img/TD ECDSA Graph.png}
-    \caption{Typical Digital Signature Process}
-    \label{fig:ecdsa_graph}
-\end{figure}
-
-
-\subsection{NIST P-256 Curve}
-\label{curve_param}
-For this demo, we have chosen the NIST P-256 curve for both the ECDSA algorithm and the ECDH protocol. This decision was based on several factors:
-
-\begin{itemize}
-    \item \textbf{NIST Recommendation:} The P-256 curve is recommended by the National Institute of Standards and Technology (NIST) for its security and efficiency \cite{nist_p256}.
-    \item \textbf{Popularity:} The P-256 curve is widely used and well-supported across various cryptographic libraries and tools, facilitating interoperability and ease of use \cite{Telemetry}.
-    \item \textbf{Documentation:} Extensive documentation and implementation examples are available for the P-256 curve, simplifying the development and debugging processes.
-    \item \textbf{Smaller Key Size:} ECDH achieves the same security level as RSA with much smaller key sizes. For instance, a 256-bit key in ECDH provides equivalent security to a 3072-bit key in RSA, as illustrated in Table \ref{tab:rsa_vs_ecc}.
-   
-    
-\end{itemize}
-\begin{table}[H]
-    \caption{Comparison of Key Sizes and Security Levels between RSA and ECC}
-    \centering
-    \begin{tabular}{|c|c|c|}
-        \hline
-        \textbf{Algorithm} & \textbf{Key Size (bits)} & \textbf{Security Level (bits)} \\
-        \hline
-      
-        RSA & 2048 & 112 \\
-        \hline
-        RSA & 3072 & 128 \\
-        \hline
-        RSA & 15360 & 256 \\
-        \hline
-        ECC (P-224) & 224 & 112 \\
-        \hline
-        ECC (P-256) & 256 & 128 \\
-        \hline
-        ECC (P-521) & 521 & 256 \\
-        \hline
-    \end{tabular}
-
-    \label{tab:rsa_vs_ecc}
+\section{Structural Decisions}
+Before delving further into the implementation details, it is crucial to understand the rationale behind the structural decisions chosen, for both the generation tool and the CoreMark project. This sections elucidates the reasons behind the choices and their relevence to the project's objectives.
+\subsection{CoreMark Project}
+The CoreMark project is the end result of the generation tool, it is meant to be runnable out of the box with the 3 main compilers (GCC, ARM, and IAR).
+For this reason, the following elements are provided:
+\begin{table}[htbp]
+   \centering 
+   \caption{CoreMark Project Structure}
+   \begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
+    \toprule
+    Element & Description \\
+    \midrule
+    User Code & This component provides the definition for the user application's entry point (the main() function) as well as the UART peripheral configuration. \\
+    \midrule
+    Driver & This component includes the necessary HAL drivers to enable the UART peripheral. \\
+    \midrule
+    Modifiable & This component contains the source and header files to modify if the user wants to modify system configurations such as linker files, startup code and VTOR configuration. \\
+    \midrule
+    CoreMark & This component contains the source code of the CoreMark benchmark to be invoked within the usercode's entry point. \\
+    \midrule
+    coremark.csolution.yml & This is the workspace file for CMSIS-Toolbox to have knowledge of the project, it defines the DFP, ARM's CORE component, alongside the target device, build types and compiler selection. \\
+    \midrule
+    coremark.cproject.yml & This is the project description file, it contains the source files to be compiled, user defines for UART functionality and the include paths. \\
+    \midrule
+    cdefault.yml & This is the file that contains all the compiler options, in our context, the configuration is meant to provide the most performance-oriented setup. \\
+    \bottomrule
+   \end{tabularx}
 \end{table}
-\textit{Note: Using a 256-bit curve means that private keys will be 256 bits long, and our public key's x and y coordinates will each be 256 bits long, totaling 512-bit size for the public keys.}
-
-
-\subsection{AES Galois Counter Mode}
-AES Galois Counter Mode (GCM) is a robust symmetric encryption algorithm that provides both confidentiality and integrity. We chose AES GCM for the following reasons:
-
+Ensuring the cross-toolchain support is done by providing the necessary compiler specific directives:
 \begin{itemize}
-    \item \textbf{High Security:} AES GCM offers strong security guarantees, making it resistant to various cryptographic attacks. It is widely regarded as one of the most secure modes of operation for AES.
-    \item \textbf{Integrity and Authenticity:} AES GCM generates an authentication tag during encryption, which can be used to verify the integrity and authenticity of the encrypted data. This dual functionality is particularly valuable in ensuring data security.
-    \item \textbf{Standardization:} AES GCM is a standardized encryption mode, widely adopted in various security protocols and applications, ensuring compatibility and interoperability.
+    \item \textbf{Linker Scripts}
+    Each compiler has their own unique format for linker scripts:
+    \begin{itemize}
+        \item \textbf{GCC:} GCC uses the .ld file extension and the LDScript syntax for the linking phase, it is structued in a declarative way to generate regions, sections and describe behavior within elements as well as exporting symbols.
+        \item \textbf{IAR:} IAR uses the .icf file extension as well as proprietary syntax for the linking phase, it allows the user to simply declare regions and optionally sections and takes care of the rest.
+        \item \textbf{ARM:} ARM compiler uses the .sct file extension, you only have to declare memory regions and the rest is handled either in C code or by the compiler directly.
+    \end{itemize}
+    \item \textbf{Startup Files} The startup file is written in assembly (This approach is changed in HAL2), and although most of the code is common between the 3 compilers, some specific instructions/symbols are different, as well as the libc initialization function is different as each compiler uses a different implementation.
+    \item \textbf{Compiler Options} Each compiler has their own set of compiler flags to be used, providing each one with the appropriate configuration is crucial to ensure consistent running.
+    \item \textbf{Generic Print Function Implementation} As mentioned prior, each compiler uses a different implementation of libc, meaning that the syscall behind the standard library's printf function are different, providing our own implementation and passing it to CoreMark for result reporting is the most efficient and platform-agnostic solution.
 \end{itemize}
-Figure \ref{fig:aes_gcm} \cite{U5_Refman} illustrates the AES GCM process.
-It begins with the initialization vector being fed into a counter. The counter's value, along with the symmetric encryption key, is used by the AES encryption function to generate a series of encrypted blocks. These encrypted blocks are then XORed with the corresponding plaintext blocks to produce the ciphertext.
-
-Simultaneously, the encrypted blocks are processed through a Galois field multiplication (GF2mul), which contributes to generating an authentication tag (TAG) for integrity verification. The output of the AES GCM process is both the encrypted message (ciphertext) and the authentication tag, ensuring confidentiality and integrity of the data. The diagram also shows the handling of additional blocks and the finalization step to complete the authentication process.
-
+\subsection{Project Generation Tool}
+As seen by the architecture of the CoreMark project, it is quite complex and contains multiple pieces that must be either generated dynamically or fetched from different resources. 
 \begin{figure}[H]
-  \centering
-  \includegraphics[width=17cm]{img/AES GCM.png}
-  \caption{AES Galois Counter Mode Process }
-  \label{fig:aes_gcm}
+    \centering
+    \includegraphics[width=15cm]{ST_Summer_Internship/GenerationToolComponents.png}
+    \caption{Project Generation Tool Architecture}
+    \label{fig:gen_tool_arch}
 \end{figure}
 
 \section{Use-Case Diagram}

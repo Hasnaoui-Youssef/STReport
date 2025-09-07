@@ -94,33 +94,60 @@ The current approaches to running benchmarks on STM32 devices typically rely on:
 While the above methods work, they exhibit several limitations:
 
 
-\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
-	\toprule
-	Approach & Advantages & Limitations \\
-	\midrule
-	Vendor-Specific IDEs & Intuitive GUI, built-in drivers, easy to use & Projects are IDE-specific, hard to automate, poor scalability \\
-	\midrule
-	Standalone CoreMark & Portable reference code on computers & Significant manual effort for adaptation to each MCU \\
-	\midrule
-	Custom Build Systems & Flexible, automation-friendly & Requires deep expertise, no standardized metadata integration \\
-	\midrule
-	CMSIS Packs & Standardized packaging and metadata support & Lack seamless integration with benchmarking and automation \\
-	\bottomrule
-\end{tabularx}
+%\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
+	%\toprule
+	%Approach & Advantages & Limitations \\
+	%\midrule
+	%Vendor-Specific IDEs & Intuitive GUI, built-in drivers, easy to use & Projects are IDE-specific, hard to automate, poor scalability \\
+	%\midrule
+	%Standalone CoreMark & Portable reference code on computers & Significant manual effort for adaptation to each MCU \\
+	%\midrule
+	%Custom Build Systems & Flexible, automation-friendly & Requires deep expertise, no standardized metadata integration \\
+	%\midrule
+	%CMSIS Packs & Standardized packaging and metadata support & Lack seamless integration with benchmarking and automation \\
+	%\bottomrule
+%\end{tabularx}
+\begin{table}[htbp]
+    \centering
+    \caption{Comparison of Approaches for Embedded Benchmarking and Automation}
+    \label{tab:benchmarking_approaches}
+    \begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
+        \toprule
+        Approach & Advantages & Limitations \\
+        \midrule
+        Vendor-Specific IDEs & Intuitive GUI, built-in drivers, easy to use & Projects are IDE-specific, hard to automate, poor scalability \\
+        \midrule
+        Standalone CoreMark & Portable reference code on computers & Significant manual effort for adaptation to each MCU \\
+        \midrule
+        Custom Build Systems & Flexible, automation-friendly & Requires deep expertise, no standardized metadata integration \\
+        \midrule
+        CMSIS Packs & Standardized packaging and metadata support & Lack seamless integration with benchmarking and automation \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
 
 \section{Proposed Solution}
-
-The proposed solution centers around developing a practical demonstration of the "CryptoEngine," the new cryptography peripheral featured in the STM32XX MCU series. This demo is designed to help users, especially those unfamiliar with cryptography, to understand and utilize the advanced features of this new technology.
-
-To achieve this, the demonstration sets up a secure communication system between two boards: one equipped with the STM32XX MCU using the "CryptoEngine" and the other with an STM32U545 MCU employing existing cryptographic solutions. By highlighting the security enhancements, and ease of use provided by the "CryptoEngine," this demo will serve as a valuable resource for developers, offering a hands-on introduction to the new hardware's capabilities.
+The proposed solution centers around the aspects of automation and standardization, leveraging the \textbf{CMSIS Solution project structure}, part of the \textbf{Open-CMSIS-Pack} ecosystem in order to achieve the desired outcome.
+The key aspects of the solution are:
+\begin{itemize}
+  \item \textbf{Unified Project structure}
+  By making use of the csolution project files \(*.csolution.yml, *.cproject.yml etc...\), we can describe build configuration, dependencies, and device parameters in a centralized way, simplifying maintenance and reuse.
+  \item \textbf{Automating Project Generation}
+  While the \textbf{Csolution project structure} offers a standardized way of configuring projects, the source code of the application has to be managed someway, although generators like \textbf{STM32CubeMX} does a decent job of generating peripheral configuration, it is still slow and GUI based, so it can't be used in a fully automated manner.
+  Therefore, we can make use of creating a tool to handle automating source code and linker script generation, device configuration and even generating the csolution project files.
+  \item \textbf{Portable and Cross-Toolchain Support}
+  Allow the project to be compiled through the main toolchains used in embedded applications, through \textbf{CMSIS-Toolbox}, as well as ensuring the project can be built and debugged in multiple IDE environments.
+  \item \textbf{CoreMark Integration}
+  Embed the \textbf{CoreMark} source code into the standardized generation template, making it easily portable amongst \textbf{all} STM32 MCU targets. 
+\end{itemize}
 
 \section{Objective}
-The primary objective of this project is to develop a practical demonstration that showcases the capabilities of the new "CryptoEngine" in enhancing security and simplifying cryptographic operations. This demonstration will serve as a reference for developers and engineers, providing them with a clear understanding of the new hardware's features and practical applications.
-
-By achieving this objective, the project aims to establish a good starting guide to users of the new "CryptoEngine", which will contribute to the development of more secure and robust cryptographic solutions, thereby enhancing the overall security posture of IoT and connected devices.
+The main objective of this project is to develop a standardized, automated workflow for running CoreMark on STM32 devices using the Csolution project structure.
 
 \section{Conclusion}
+Benchmarking embedded systems is essential for performance evaluation and hardware selection. However, the current manual approaches to running CoreMark on STM32 devices are inefficient, inconsistent, and hard to scale.
 
-To conclude, this chapter has introduced STMicroelectronics, including its global operations, the ST Tunis site, and the Support Solutions team. We have highlighted the growing importance of security for microcontrollers, especially within the IoT landscape, and identified the existing limitations in the current cryptographic solutions available for STM32 products.
+This project addresses these challenges by introducing a Csolution-based workflow that integrates device metadata, automation, and portable build configurations. By leveraging the Open-CMSIS-Pack ecosystem, the proposed solution provides a unified, reproducible, and scalable benchmarking framework.
 
-The proposed "CryptoEngine" is designed to address these challenges by providing enhanced security features combined with improved usability. By developing a practical demonstration of this new peripheral, the project aims to offer a comprehensive introduction to its capabilities, thus enabling users to effectively implement and benefit from advanced cryptographic solutions.
+The outcome is a streamlined process where CoreMark can be quickly deployed to any STM32 target, results can be gathered reliably, and the entire workflow can serve as a foundation for future benchmarking or performance evaluation tasks across diverse embedded platforms.

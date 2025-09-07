@@ -176,8 +176,7 @@ The CMSIS-Pack format is used to deliver a software package and is aimed to be s
         \item Device description and available peripherals.
         \item Memory layout of internal and external RAM and ROM address ranges.
         \item Flash algorithms for programming the device.
-        \item Debug and trace configurations as well as System View Description files for device specific display of 
-        \item the memory mapped peripheral registers.
+        \item Debug and trace configurations as well as System View Description files for device specific display of the memory mapped peripheral registers. 
     \end{itemize}
     \item \textbf{Board Support :}
     \begin{itemize}
@@ -197,7 +196,7 @@ CMSIS software components can also refer to multiple interfaces of other softwar
 Configuration files contain application specific parameters for a software component. These files are typically copied to the user project workspace; all other files are not modified by the user and can remain in a separate location which avoids that a project workspace is polluted by many source files that should be considered as “black-box” elements by the application programmer.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=7cm]{img/ST_Summer_Internship/software_component.png}
+  \includegraphics[width=15cm]{img/ST_Summer_Internship/software_component.png}
   \caption{Software Component Interface}
   \label{fig:sw_comp}
 \end{figure}
@@ -281,27 +280,6 @@ cbuild2cmake reads the build information files *.cbuild-idx.yml and *.cbuild.yml
         cmake --build <tmpdir> -j <n> --target <context>
     \end{lstlisting}
 \end{itemize}
-\subsubsection{Run and Debug Management}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=15cm]{img/ST_Summer_Internship/cbuild-run.png}
-    \caption{Running and Debugging Workflow}
-    \label{fig:debug_wf}
-\end{figure}
-The CMSIS-Toolbox build system manages software packs that contain information about device, board, and software components. It controls the build output (typically ELF/DWARF files), and has provisions for HEX, BIN and post-processing.
-\subsubsection*{Configuration \& Settings}
-The CMSIS-Toolbox uses the information from the DFP and BSP to simplify the debugger configuration. It generates the file *.cbuild-run.yml that contains for one target of a csolution project all information for run and debug.
-The software packs contain information that is the basis for debug and run settings:
-\begin{itemize}
-    \item Flash algorithms of device memory (in DFP) and board memory (in BSP).
-    \item On-board debug adapter (a default programming/debug channel) including features.
-    \item Available memory of device and board.
-    \item Device parameters such as processor core(s) and clock speed.
-    \item Debug Access Sequences and System Description Files that support more complex Cortex-A/R/M configurations.
-    \item Debug Configuration files (*.dbgconf) that configure device properties such as trace pins.
-    \item CMSIS-SVD SVD files for viewing device peripherals.
-    \item CMSIS-View SCVD files for analysis of software components (RTOS, Middleware).
-\end{itemize}
 
 \section{Project Generation}
 When trying to run benchmarks across a wide variety of MCUs, the project structure follows the same pattern, and the dependencies can be expressed in a logical way relating to the device's metadata.
@@ -330,8 +308,8 @@ Most formalisms provide the following operations to construct regular expression
 These operations can be combined interchangeably to create complex expressions to describe the desired system.
 \subsubsection{IEEE POSIX Standard}
 The IEEE POSIX standard has three sets of compliance: BRE (Basic Regular Expressions), ERE (Extended Regular Expressions), and SRE (Simple Regular Expressions). SRE is deprecated, in favor of BRE, as both provide backward compatibility.
-BRE and ERE work together. ERE adds ?, +, and |, and it removes the need to escape the metacharacters \( \) and \{ \}, which are required in BRE. Furthermore, as long as the POSIX standard syntax for regexes is adhered to, there can be, and often is, additional syntax to serve specific (yet POSIX compliant) applications. Although POSIX.2 leaves some implementation specifics undefined, BRE and ERE provide a "standard" which has since been adopted as the default syntax of many tools, where the choice of BRE or ERE modes is usually a supported option.
-Perl regexes have become a de facto standard, having a rich and powerful set of atomic expressions. Perl has no "basic" or "extended" levels. As in POSIX EREs, \( \) and \{ \} are treated as metacharacters unless escaped; other metacharacters are known to be literal or symbolic based on context alone. Additional functionality includes lazy matching, backreferences, named capture groups, and recursive patterns.
+BRE and ERE work together. ERE adds ?, +, and |, and it removes the need to escape the metacharacters ( ) and \{ \}, which are required in BRE. Furthermore, as long as the POSIX standard syntax for regexes is adhered to, there can be, and often is, additional syntax to serve specific (yet POSIX compliant) applications. Although POSIX.2 leaves some implementation specifics undefined, BRE and ERE provide a "standard" which has since been adopted as the default syntax of many tools, where the choice of BRE or ERE modes is usually a supported option.
+Perl regexes have become a de facto standard, having a rich and powerful set of atomic expressions. Perl has no "basic" or "extended" levels. As in POSIX EREs, ( ) and \{ \} are treated as metacharacters unless escaped; other metacharacters are known to be literal or symbolic based on context alone. Additional functionality includes lazy matching, backreferences, named capture groups, and recursive patterns.
 
 \subsection{Templates \& File Manipulation}
 File generation templates are pre-defined structures or blueprints used to create new files with standardized content and formatting.
@@ -370,6 +348,33 @@ The utility cbridge gets as parameter the <solution-name>.cbuild-gen-idx.yml and
 	\item <project-name>.cgen.yml (created by cbridge) provides the data for project import into the csolution build process.
 \end{itemize}
 \newpage
+\section{Loading And Debugging}
+Within the context of this project, there are two different approaches to running our application, we will explore both of them providing insight on the advantages of limitations of both.
+\subsection{PyOCD}
+In the ideal usecase, \textbf{PyOCD} offers all the needed tools to run and debug our application.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{img/ST_Summer_Internship/cbuild-run.png}
+    \caption{PyOCD Running and Debugging Workflow}
+    \label{fig:debug_wf}
+\end{figure}
+The CMSIS-Toolbox build system manages software packs that contain information about device, board, and software components. It controls the build output (typically ELF/DWARF files), and has provisions for HEX, BIN and post-processing.
+\subsubsection*{Configuration \& Settings}
+The CMSIS-Toolbox uses the information from the DFP and BSP to simplify the debugger configuration. It generates the file *.cbuild-run.yml that contains for one target of a csolution project all information for run and debug.
+The software packs contain information that is the basis for debug and run settings:
+\begin{itemize}
+    \item Flash algorithms of device memory (in DFP) and board memory (in BSP).
+    \item On-board debug adapter (a default programming/debug channel) including features.
+    \item Available memory of device and board.
+    \item Device parameters such as processor core(s) and clock speed.
+    \item Debug Access Sequences and System Description Files that support more complex Cortex-A/R/M configurations.
+    \item Debug Configuration files (*.dbgconf) that configure device properties such as trace pins.
+    \item CMSIS-SVD SVD files for viewing device peripherals.
+    \item CMSIS-View SCVD files for analysis of software components (RTOS, Middleware).
+\end{itemize}
+\subsection{STM32CubeProgrammer}
+While more convenient, PyOCD relies on recognizing the connected device in order to perform its operations, while for commercialized devices, this works fine. When working on products that have not been launched, or better yet, still in the pre-production phase, only available as a prototype running on an FPGA, PyOCD no longer can serve its purpose.
+That's where \textbf{STM32CubeProgrammer} comes into play, since the tool is developed within the premises of \textbf{ST}, we are able to load our program into all STM32 MCUs.
 \section*{Conclusion}
 This chapter provided the foundational knowledge required to understand the subsequent work in this report. We began by exploring the STM32 ecosystem, examining the wide range of available microcontrollers, their ARM Cortex-M cores, and critical peripherals such as UART. We also reviewed the STM32Cube firmware package, which streamlines development through standardized libraries like CMSIS, HAL, and LL drivers.
 
