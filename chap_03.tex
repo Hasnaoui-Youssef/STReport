@@ -199,19 +199,134 @@ Refer to Table \ref{tab:use_cases} for an in-depth explanation:
 \end{xltabular}
 
 \section{Work Environment}
-In this section, we outline the hardware and software resources utilized during the internship project that were essential for the development, testing, and demonstration of the "CryptoEngine" peripheral.
+In this section, we outline the hardware and software resources utilized during the internship project that were essential for the development testing, and validation.
 
 \subsection{Hardware Resources}
-\begin{itemize}
-    \item \textbf{STM32XX MCU:} The STM32XX microcontroller unit (MCU) is the primary hardware platform used for implementing and testing the "CryptoEngine" peripheral. The STM32XX series offers advanced cryptographic features and peripherals, making it ideal for secure communication applications.
-    \item \textbf{STM32U545 MCU:} The STM32U545 microcontroller unit is used for comparison and interoperability with the STM32XX MCU. This board utilizes the AES and PKA peripherals to perform cryptographic operations, enabling secure key exchange and encryption.
-    \begin{figure}[H]
-  \centering
-  \includegraphics[width=6cm]{img/U5 Nucleo.jpg}
-  \caption{STM32U545 Nucleo Board}
-  \label{fig:stm32u545n}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=15cm]{img/ST_Summer_Internship/arm_cortex_mcu_portfolio.png}
+	\caption{STM32 Microcontroller Portfolio}
+	\label{fig:stm32_portfolio}
 \end{figure}
-\end{itemize}
+The project is meant to work on all STM32 MCUs, therefore as a base unit, the validation was done on a single board from all STM32 MCU families.
+Table \ref{tab:stm32_mcu_families} describes all the available families:
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{} X@{}}
+	\caption{STM32 Microcontroller Families\label{tab:stm32_mcu_families}} \\
+	\toprule
+	\textbf{Family} & \textbf{Core} & \textbf{Features} \\
+	\midrule
+	\endfirsthead % Header for first page
+	
+	\multicolumn{3}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+	\toprule
+	\textbf{Family} & \textbf{Core} & \textbf{Features} \\
+	\midrule
+	\endhead % Header for subsequent pages
+	
+	\midrule
+	\multicolumn{3}{r}{{Continued on next page}} \\
+	\endfoot % Footer for all pages except last
+	
+	\bottomrule
+	\endlastfoot % Footer for the last page
+	
+	STM32C0 &
+	Arm Cortex-M0+ &
+	h \\
+	\midrule
+	STM32F0 &
+	Arm Cortex-M0 &
+	h \\
+	\midrule
+	STM32F1 &
+	Arm Cortex-M3 &
+	h \\
+	\midrule
+	STM32F2 &
+	Arm Cortex-M3 &
+	h \\
+	\midrule
+	STM32F3 &
+	Arm Cortex-M4 &
+	h \\
+	\midrule
+	STM32F4 &
+	Arm Cortex-M4 &
+	h \\
+	\midrule
+	STM32F7 &
+	Arm Cortex-M7 &
+	h \\
+	\midrule
+	STM32G0 &
+	Arm Cortex-M0+ &
+	h \\
+	\midrule
+	STM32G4 &
+	Arm Cortex-M4 &
+	h \\
+	\midrule
+	STM32H5 &
+	Arm Cortex-M33 &
+	h \\
+	\midrule
+	STM32H7 &
+	Arm Cortex-M7 &
+	h \\
+	\midrule
+	STM32L0 &
+	Arm Cortex-M0+ &
+	h \\
+	\midrule
+	STM32L1 &
+	Arm Cortex-M3 &
+	h \\
+	\midrule
+	STM32L4 &
+	Arm Cortex-M4 &
+	h \\
+	\midrule
+	STM32L4+ &
+	Arm Cortex-M4 &
+	h \\
+	\midrule
+	STM32L5 &
+	Arm Cortex-M33 &
+	h \\
+	\midrule
+	STM32N6 &
+	Arm Cortex-M55 &
+	h \\
+	\midrule
+	STM32U0 &
+	Arm Cortex-M0+ &
+	h \\
+	\midrule
+	STM32U3 &
+	Arm Cortex-M33 &
+	h \\
+	\midrule
+	STM32U5 &
+	Arm Cortex-M33 &
+	h \\
+	\midrule
+	STM32WB &
+	Arm Cortex-M4 &
+	h \\
+	\midrule
+	STM32WB0 &
+	Arm Cortex-M0+ &
+	h \\
+	\midrule
+	STM32WBA &
+	Arm Cortex-M33 &
+	h \\
+	\midrule
+	STM32WL &
+	Arm Cortex-M4 &
+	h \\
+	
+\end{xltabular}
 
 \subsection{Software Resources}
 The following software tools were used for the  development, debugging and testing of the "CryptoEngine" demonstration:
