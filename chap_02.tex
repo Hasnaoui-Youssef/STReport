@@ -140,7 +140,7 @@ Going from source code in C/C++ to executable firmware involves multiple steps, 
     \item \textbf{Linker :} The linking stage is the final and most important part of the process, since every c file is compiled separately into its own object file, they are not executable by default, the linker is what declares memory regions and associates symbols to the appropriate sections.
 \end{itemize}
 \subsection{Embedded Systems Toolchains}
-Building applications for embedded systems is quite different from a native build process, although you can create your own cross-compilation toolchain, there are available battle-tested available toolchains that are used across the industry. The most relevant ones being:
+Building applications for embedded systems is quite different from a native build process, although you can create your own cross-compilation toolchain, there are battle-tested toolchains that are available and used across the industry. The most relevant ones being:
 \begin{itemize}
     \item \textbf{GCC :} The GCC compiler is an open-source C/C++ compiler, and is part of the GNU utilities, ARM provides their own implementation, prefixed with "arm-none-eabi" and can target most ARM architectures such as ARMv7 and ARMv8.
     \item \textbf{ARM Compiler :} As well as providing a cross-compiling gcc toolchain, ARM has their own compiler based on CLANG and LLVM technologies called ARM compiler.

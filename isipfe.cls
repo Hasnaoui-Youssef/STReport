@@ -109,6 +109,7 @@
 % xspace so that spaces after commands are handled correctly
 \RequirePackage{xspace}
 \usepackage{tabularx}
+\usepackage{xltabular}
 \usepackage{booktabs}
 
 %================ Languages used in the doc ================%

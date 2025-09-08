@@ -1,7 +1,7 @@
 \chapter{Objectives Specification and Work Environment}
 
 \section*{Introduction}
-This chapter will first define the project's functional and non-functional requirements, then we will discuss the chosen structural deceisions , explaining the reasoning behind their selection. Finally we will specify the hardware and software resources necessary for this project. 
+This chapter will first define the project's functional and non-functional requirements, then we will discuss the chosen structural deceisions , explaining the reasoning behind their selection. Finally we will specify the hardware and software resources necessary for this project.
 
 \section{Project Specification}
 Requirements analysis is a fundamental phase in every project realization process. It is based on the study of the project's features as well as the constraints. In this section, we will cover both the functional and non-functional requirements.
@@ -55,25 +55,39 @@ Below are the non-functional requirements or the constraints that the functional
     \item \textbf{Standardized Output} The results must be presented in a clear format to facilitate further automation and data collection.
    \end{itemize}
 \end{itemize}
-\newpage
 
 \section{Structural Decisions}
 Before delving further into the implementation details, it is crucial to understand the rationale behind the structural decisions chosen, for both the generation tool and the CoreMark project. This sections elucidates the reasons behind the choices and their relevence to the project's objectives.
 \subsection{CoreMark Project}
 The CoreMark project is the end result of the generation tool, it is meant to be runnable out of the box with the 3 main compilers (GCC, ARM, and IAR).
-For this reason, the following elements are provided:
-\begin{table}[htbp]
-   \centering 
-   \caption{CoreMark Project Structure}
-   \begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
+
+Ensuring the cross-toolchain support is done by providing the necessary compiler specific directives:
+\begin{itemize}
+	\item \textbf{Linker Scripts}
+	Each compiler has their own unique format for linker scripts:
+	\begin{itemize}
+		\item \textbf{GCC:} GCC uses the .ld file extension and the LDScript syntax for the linking phase, it is structued in a declarative way to generate regions, sections and describe behavior within elements as well as exporting symbols.
+		\item \textbf{IAR:} IAR uses the .icf file extension as well as proprietary syntax for the linking phase, it allows the user to simply declare regions and optionally sections and takes care of the rest.
+		\item \textbf{ARM:} ARM compiler uses the .sct file extension, you only have to declare memory regions and the rest is handled either in C code or by the compiler directly.
+	\end{itemize}
+	\item \textbf{Startup Files} The startup file is written in assembly (This approach is changed in HAL2), and although most of the code is common between the 3 compilers, some specific instructions/symbols are different, as well as the libc initialization function is different as each compiler uses a different implementation.
+	\item \textbf{Compiler Options} Each compiler has their own set of compiler flags to be used, providing each one with the appropriate configuration is crucial to ensure consistent running.
+	\item \textbf{Generic Print Function Implementation} As mentioned prior, each compiler uses a different implementation of libc, meaning that the syscall behind the standard library's printf function are different, providing our own implementation and passing it to CoreMark for result reporting is the most efficient and platform-agnostic solution.
+\end{itemize}
+The table \ref{tab:cm_prj_struct} provides an overview of the architecture of the CoreMark project.
+\begin{table}[H]
+	\centering
+   	\caption{CoreMark Project Structure}
+   	\label{tab:cm_prj_struct}
+   	\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
     \toprule
     Element & Description \\
     \midrule
-    User Code & This component provides the definition for the user application's entry point (the main() function) as well as the UART peripheral configuration. \\
+    User Code & This component provides the definition for the user application's entry point as well as the UART peripheral configuration. \\
     \midrule
     Driver & This component includes the necessary HAL drivers to enable the UART peripheral. \\
     \midrule
-    Modifiable & This component contains the source and header files to modify if the user wants to modify system configurations such as linker files, startup code and VTOR configuration. \\
+    Toolchain\_Specific & This component contains the toolchain specific source and header files to modify if the user wants to modify system configurations such as linker scripts and startup files. \\
     \midrule
     CoreMark & This component contains the source code of the CoreMark benchmark to be invoked within the usercode's entry point. \\
     \midrule
@@ -85,75 +99,104 @@ For this reason, the following elements are provided:
     \bottomrule
    \end{tabularx}
 \end{table}
-Ensuring the cross-toolchain support is done by providing the necessary compiler specific directives:
-\begin{itemize}
-    \item \textbf{Linker Scripts}
-    Each compiler has their own unique format for linker scripts:
-    \begin{itemize}
-        \item \textbf{GCC:} GCC uses the .ld file extension and the LDScript syntax for the linking phase, it is structued in a declarative way to generate regions, sections and describe behavior within elements as well as exporting symbols.
-        \item \textbf{IAR:} IAR uses the .icf file extension as well as proprietary syntax for the linking phase, it allows the user to simply declare regions and optionally sections and takes care of the rest.
-        \item \textbf{ARM:} ARM compiler uses the .sct file extension, you only have to declare memory regions and the rest is handled either in C code or by the compiler directly.
-    \end{itemize}
-    \item \textbf{Startup Files} The startup file is written in assembly (This approach is changed in HAL2), and although most of the code is common between the 3 compilers, some specific instructions/symbols are different, as well as the libc initialization function is different as each compiler uses a different implementation.
-    \item \textbf{Compiler Options} Each compiler has their own set of compiler flags to be used, providing each one with the appropriate configuration is crucial to ensure consistent running.
-    \item \textbf{Generic Print Function Implementation} As mentioned prior, each compiler uses a different implementation of libc, meaning that the syscall behind the standard library's printf function are different, providing our own implementation and passing it to CoreMark for result reporting is the most efficient and platform-agnostic solution.
-\end{itemize}
+
+
 \subsection{Project Generation Tool}
-As seen by the architecture of the CoreMark project, it is quite complex and contains multiple pieces that must be either generated dynamically or fetched from different resources. 
+The architecture of the CoreMark project is quite complex and contains multiple pieces that must be either generated dynamically or fetched from different resources.
 \begin{figure}[H]
     \centering
     \includegraphics[width=15cm]{ST_Summer_Internship/GenerationToolComponents.png}
     \caption{Project Generation Tool Architecture}
     \label{fig:gen_tool_arch}
 \end{figure}
+The figure \ref{fig:gen_tool_arch} shows the multiple modules within the project generation tool.
+\begin{table}[htbp]
+   \centering
+   \caption{Project Generation Tool Structure}
+   \begin{tabularx}{\linewidth}{@{}>{\bfseries}l X X@{}}
+    \toprule
+    Module & Description \\
+    \midrule
+       Device Manager & Extracts the device metadata \\
+    \midrule
+       Firmware Manager & Manages the device's firmware pack and extracting the necessary files \\
+    \midrule
+       Template Processor & Generates files from the template files and the gathered data \\
+    \midrule
+       File Processor & Modifies firmware files that cannot be templated to accomodate for our project's context \\
+    \midrule
+       cm\_gen Engine & Orchestrates and runs the different modules \\
+    \bottomrule
+   \end{tabularx}
+\end{table}
 
 \section{Use-Case Diagram}
+
 \begin{figure}[H]
-  \centering
-  \includegraphics[width=14.5cm]{img/use case 2.png}
-  \caption{Use-Case Diagram for Cryptographic Peripherals (AES and PKA)}
-  \label{fig:use_case_diagram}
+	\centering
+	\includegraphics[width=15cm]{img/ST_Summer_Internship/use_case2.png}
+	\caption{Automated CoreMark Benchmarking Use-Case Diagram}
+	\label{fig:use_case_diagram}
 \end{figure}
 
-The Use-Case diagram in Figure \ref{fig:use_case_diagram} illustrates the interactions between a user and the cryptographic peripherals available on STM32 MCUs.
- Refer to Table \ref{tab:use_cases} for an in-depth explanation:
+The Use-Case diagram in Figure \ref{fig:use_case_diagram} illustrates the interactions between a user, the project generation tool and the project's execution space.
+Refer to Table \ref{tab:use_cases} for an in-depth explanation:
 
-\begin{longtable}{|p{5cm}|p{6cm}|p{4cm}|}
-\caption{Use Cases for Cryptographic Peripherals} \label{tab:use_cases} \\
-
-\hline
-\textbf{Use Case} & \textbf{Relevance} & \textbf{Peripheral Used} \\ \hline
-\endfirsthead
-
-\multicolumn{3}{c}%
-{{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
-\hline
-\textbf{Use Case} & \textbf{Relevance} & \textbf{Peripheral Used} \\ \hline
-\endhead
-
-\hline \multicolumn{3}{|r|}{{Continued on next page}} \\ \hline
-\endfoot
-
-\hline
-\endlastfoot
-
-Generate Private ECDSA Key & Part of the key management process, ensuring secure storage and handling of private keys, which contributes to confidentiality. & PKA (Public Key Accelerator) \\ \hline
-Generate Private ECDH Key & Part of the key management process and essential for establishing a shared secret, contributing to confidentiality. & PKA (Public Key Accelerator) \\ \hline
-Compute ECDSA Public Key & Necessary for signature verification, which ensures authenticity. & PKA (Public Key Accelerator) \\ \hline
-Compute ECDH Public Key & Necessary for the ECDH key exchange process, contributing to confidentiality. & PKA (Public Key Accelerator) \\ \hline
-Generate ECDSA Signature & Ensures the authenticity of the communicating parties by providing a way to verify identities. & PKA (Public Key Accelerator) \\ \hline
-Verify ECDSA Signature & Ensures the authenticity of the communicating parties by verifying the provided signatures. & PKA (Public Key Accelerator) \\ \hline
-Encrypt Message & Ensures confidentiality and integrity of the message during transmission. & AES (Advanced Encryption Standard) \\ \hline
-Generate Tag & Ensures the integrity of the message and also serves as an authentication check. & AES (Advanced Encryption Standard) \\ \hline
-Decrypt Message & Ensures confidentiality and integrity of the message during transmission. & AES (Advanced Encryption Standard) \\ \hline
-Verify Tag & Ensures the integrity of the message and also serves as an authentication check. & AES (Advanced Encryption Standard) \\ \hline
-
-\end{longtable}
-
-
-
-
-
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{}}
+	\caption{Automated CoreMark Benchmarking\label{tab:use_cases}} \\
+	\toprule
+	\textbf{Use Case} & \textbf{Relevance} \\
+	\midrule
+	\endfirsthead % Header for first page
+	
+	\multicolumn{2}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+	\toprule
+	\textbf{Use Case} & \textbf{Relevance} \\
+	\midrule
+	\endhead % Header for subsequent pages
+	
+	\midrule
+	\multicolumn{2}{r}{{Continued on next page}} \\
+	\endfoot % Footer for all pages except last
+	
+	\bottomrule
+	\endlastfoot % Footer for the last page
+	
+	\multicolumn{2}{ c }{\textbf{Project Generation Subsystem}} \\
+	\midrule
+	Select Target Device &
+	The developer selects the STM32 device or family for which the CoreMark project should be generated. 
+	This ensures that the automation tool generates the correct configuration files and CMSIS device support. \\
+	\midrule
+	Configure Project Settings &
+	The developer configures CoreMark-specific parameters such as iteration counts, seed values, and compiler optimization flags 
+	before building and running the benchmark. \\
+	\midrule
+	Generate CoreMark Project &
+	The automation tool generates a complete project structure, including the \texttt{csolution} files and necessary source code, 
+	ready to be built and deployed for the selected STM32 target. \\
+	\midrule
+	\multicolumn{2}{ c }{\textbf{CoreMark Project Subsystem}} \\
+	\midrule
+	Build Project &
+	The CoreMark project is compiled using the CMSIS build system and toolchain to produce a firmware image for the target hardware. \\
+	\midrule
+	Flash Target &
+	The compiled binary is flashed to the STM32 device to prepare it for execution.\\
+	\midrule
+	Run CoreMark &
+	The benchmark executes on the STM32 target, performing operations such as list processing, matrix manipulation, and state machine handling 
+	to measure CPU performance. \\
+	\midrule
+	Collect CoreMark Results &
+	During execution, CoreMark outputs the cycle count, execution time, and final score. \\
+	\midrule
+	Analyze Performance &
+	The developer interprets the CoreMark/MHz score and other performance metrics to determine how well the device performs within the specified context. \\
+	\midrule
+	Compare Scores &
+	Performance results are compared across different devices, toolchains, or configurations to guide hardware selection or optimization decisions.
+\end{xltabular}
 
 \section{Work Environment}
 In this section, we outline the hardware and software resources utilized during the internship project that were essential for the development, testing, and demonstration of the "CryptoEngine" peripheral.
