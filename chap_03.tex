@@ -210,21 +210,20 @@ In this section, we outline the hardware and software resources utilized during 
 \end{figure}
 The project is meant to work on all STM32 MCUs, therefore as a base unit, the validation was done on a single board from all STM32 MCU families.
 Table \ref{tab:stm32_mcu_families} describes all the available families:
-\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{} X@{}}
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{} X@{} X@{} X@{} X@{}}
 	\caption{STM32 Microcontroller Families\label{tab:stm32_mcu_families}} \\
 	\toprule
-	\textbf{Family} & \textbf{Core} & \textbf{Features} \\
+	\textbf{Family} & \textbf{Core} & \textbf{Maximum Frequency(MHz)} & \textbf{Read-Only Memory} & \textbf{Random Access Memory} & \textbf{Additional Features} \\
 	\midrule
 	\endfirsthead % Header for first page
 	
-	\multicolumn{3}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+	\multicolumn{6}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
 	\toprule
-	\textbf{Family} & \textbf{Core} & \textbf{Features} \\
+	\textbf{Family} & \textbf{Core} & \textbf{Maximum Frequency} & \textbf{Read-Only Memory} & \textbf{Random Access Memory} & \textbf{Additional Features} \\
 	\midrule
 	\endhead % Header for subsequent pages
 	
-	\midrule
-	\multicolumn{3}{r}{{Continued on next page}} \\
+	\multicolumn{6}{r}{{Continued on next page}} \\
 	\endfoot % Footer for all pages except last
 	
 	\bottomrule
@@ -232,107 +231,118 @@ Table \ref{tab:stm32_mcu_families} describes all the available families:
 	
 	STM32C0 &
 	Arm Cortex-M0+ &
-	h \\
+	48MHZ & 16-256KB & 6-36KB & - \\
 	\midrule
 	STM32F0 &
 	Arm Cortex-M0 &
-	h \\
+	48MHz & 16-256KB & 4-32KB & - \\
 	\midrule
 	STM32F1 &
 	Arm Cortex-M3 &
-	h \\
+	72MHz & 16KB-1MB & 4-96KB & - \\
 	\midrule
 	STM32F2 &
 	Arm Cortex-M3 &
-	h \\
+	120MHz & 128KB-1MB & 64KB-128KB & ART Accelerator \\
 	\midrule
 	STM32F3 &
 	Arm Cortex-M4 &
-	h \\
+	72MHz & 32-512KB & 16-80KB & CCM-SRAM and FPU/DFP instructions \\
 	\midrule
 	STM32F4 &
 	Arm Cortex-M4 &
-	h \\
+	180MHz & 64KB-2MB & 32-384KB & Chrom-ART Accelerator\\
 	\midrule
 	STM32F7 &
 	Arm Cortex-M7 &
-	h \\
+	216MHz & 64K-2MB & 256-512KB & L1 Data and Instruction Caches, TCM, Read-While-write Flash capabilities \\
 	\midrule
 	STM32G0 &
 	Arm Cortex-M0+ &
-	h \\
+	64MHz & 16-512KB & 8-144KB & \\
 	\midrule
 	STM32G4 &
 	Arm Cortex-M4 &
-	h \\
+	170MHz & 32-512KB & 32-128KB & CCM-SRAM and FPU/DFP instructions \\
 	\midrule
 	STM32H5 &
 	Arm Cortex-M33 &
-	h \\
+	250MHz & 128KB-2MB & 32-640KB & Integrated Instruction and Data Cache peripherals \\
 	\midrule
 	STM32H7 &
 	Arm Cortex-M7 &
-	h \\
+	600MHz & 64KB-2MB & 536KB-1.4MB & L1 Data and Instruction Cache, TCM, Chrome-ART and NeoChrom Accelerators.  \\
 	\midrule
 	STM32L0 &
 	Arm Cortex-M0+ &
-	h \\
+	32MHz & 8-192KB & 2-20KB & Up to 6KB of EEPROM \\
 	\midrule
 	STM32L1 &
 	Arm Cortex-M3 &
-	h \\
+	32MHz & 32-512KB & 4-80KB & Up to 16KB of EEPROM \\
 	\midrule
 	STM32L4 &
 	Arm Cortex-M4 &
-	h \\
+	80MHz & 64KB-1MB & 40-320KB & Chrom-ART Accelerator \\
 	\midrule
 	STM32L4+ &
 	Arm Cortex-M4 &
-	h \\
+	120MHz & 512KB-2MB & 320-640KB & Chrom-ART Accelerator \\
 	\midrule
 	STM32L5 &
 	Arm Cortex-M33 &
-	h \\
+	110MHz & 256-512MB & 256KB & ART Accelerator \\
 	\midrule
 	STM32N6 &
 	Arm Cortex-M55 &
-	h \\
+	800MHz & 0 & 4.2MB & Neural-ART Accelerator(Up to 1GHz Clock Speed) \\
 	\midrule
 	STM32U0 &
 	Arm Cortex-M0+ &
-	h \\
+	56MHz & 16-256KB & 12-40KB & - \\
 	\midrule
 	STM32U3 &
 	Arm Cortex-M33 &
-	h \\
+	96MHz & 512KB-1MB & 256KB & Integrated Instruction and Data Cache peripherals \\
 	\midrule
 	STM32U5 &
 	Arm Cortex-M33 &
-	h \\
+	160MHz & 128-4MB & 274KB-3MB & Integrated Instruction and Data Cache peripherals \\
 	\midrule
 	STM32WB &
 	Arm Cortex-M4 &
-	h \\
+	64MHz & 256KB-1MB & 48-256KB & - \\
 	\midrule
 	STM32WB0 &
 	Arm Cortex-M0+ &
-	h \\
+	64MHz & 192-512KB & 24-64KB & - \\
 	\midrule
 	STM32WBA &
 	Arm Cortex-M33 &
-	h \\
+	100MHz & 512KB-2MB & 64-512KB & Integrated Instruction and Data Cache peripherals \\
 	\midrule
 	STM32WL &
 	Arm Cortex-M4 &
-	h \\
+	64MHz & 64-256KB & 8-64KB & - \\
 	
 \end{xltabular}
 
 \subsection{Software Resources}
-The following software tools were used for the  development, debugging and testing of the "CryptoEngine" demonstration:
-
+The following software tools were used for the  development, debugging and testing of the project:
+\subsection*{Programming Languages}
+\begin{itemize}
+	\item \textbf{C:}
+	 C is a general-purpose programming language. By design, C gives the programmer relatively direct access to the features of the typical CPU architecture, customized for the target instruction set. It has been and continues to be used to implement operating systems (especially kernels), device drivers, and protocol stacks, and embedded applications. C is used on computers that range from the largest supercomputers to the smallest microcontrollers. 
+	\item \textbf{Go:}
+	 Go (or Golang) is a high-level general purpose programming language that is statically typed and compiled. It is known for the simplicity of its syntax and the efficiency of development that it enables by the inclusion of a large standard library supplying many needs for common projects.
+	\item \textbf{Python:}
+	 Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.
+	 Python is dynamically type-checked and garbage-collected. It supports multiple programming paradigms, including structured (particularly procedural), object-oriented and functional programming. 
+\end{itemize}
+\subsection*{Integrated Development Environments and Text Editors}
+\subsubsection{Keil \textmu vision}
 \subsubsection{IAR Embedded Workbench}
-IAR Embedded Workbench is an integrated development environment (IDE) used for programming, debugging, and optimizing embedded applications. It provides comprehensive support for STM32 microcontrollers, including the STM32XX and STM32U5 series. Key features include:
+IAR Embedded Workbench is an integrated development environment (IDE) used for programming, debugging, and optimizing embedded applications. It provides comprehensive support for STM32 microcontrollers. Key features include:
 \begin{itemize}
     \item Advanced debugging capabilities with breakpoints, watch windows, and real-time data visualization.
     \item Code optimization tools to improve performance and reduce memory footprint.
@@ -344,26 +354,34 @@ IAR Embedded Workbench is an integrated development environment (IDE) used for p
   \caption{IAR Embedded Workbench}
   \label{fig:IAR}
 \end{figure}
-
+\subsubsection{Visual Studio Code}
+\subsection*{Embedded Systems Compiler Toolchains}
+\subsubsection{GCC}
+\subsubsection{ARM Compiler v6}
+\subsubsection{IAR Toolchain}
+\subsection*{Development Tools}
+\subsubsection{CMake}
+\subsubsection{CMSIS-Toolbox}
+\begin{itemize}
+	\item \textbf{csolution}
+	\item \textbf{cproject}
+	\item \textbf{cpackget}
+\end{itemize}
+\subsubsection{PyOCD}
+\subsubsection{OpenOCD}
+\subsubsection{STM32CubeProgrammer}
 \subsubsection{STM32CubeMX}
 STM32CubeMX is a graphical software configuration tool that simplifies the development of STM32-based applications. It allows developers to:
 \begin{itemize}
-    \item Configure microcontroller peripherals and middleware components through an intuitive graphical interface.
-    \item Generate initialization code for STM32 microcontrollers, reducing development time.
-    \item Integrate with various IDEs, including IAR Embedded Workbench, for a streamlined development workflow.
+	\item Configure microcontroller peripherals and middleware components through an intuitive graphical interface.
+	\item Generate initialization code for STM32 microcontrollers, reducing development time.
+	\item Integrate with various IDEs, including IAR Embedded Workbench, for a streamlined development workflow.
 \end{itemize}
 \begin{figure}[H]
-  \centering
-  \includegraphics[width=8cm]{img/CUBEMX.jpg}
-  \caption{STM32CubeMX}
-  \label{fig:mx}
+	\centering
+	\includegraphics[width=8cm]{img/CUBEMX.jpg}
+	\caption{STM32CubeMX}
+	\label{fig:mx}
 \end{figure}
-\subsubsection{Yet Another Terminal (YAT)}
-Yet Another Terminal (YAT) is a terminal application used for serial communication with the STM32 microcontrollers. It provides a user-friendly interface for monitoring and interacting with the microcontroller's output. Key features include:
-\begin{itemize}
-    \item Support for multiple communication protocols, including USART.
-    \item Real-time data logging and visualization capabilities.
-    \item Customizable settings for baud rate, data bits, parity, and stop bits.
-\end{itemize}
 \section*{Conclusion}
-The work environment for this internship project includes both hardware and software resources that are essential for the successful implementation and demonstration of the "CryptoEngine" peripheral. The STM32XX MCU provides the necessary hardware capabilities, while the STM32U545 MCU is used for comparison and interoperability, utilizing AES and PKA peripherals. IAR Embedded Workbench and STM32CubeMX offer powerful tools for software development and configuration. Together, these resources enable the creation of a secure, efficient, and user-friendly cryptographic demonstration.
+The work environment for this internship includes both hardware and software resources that are essential for the successful implementation of the project.

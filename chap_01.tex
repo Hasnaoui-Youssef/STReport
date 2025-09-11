@@ -79,14 +79,14 @@ There is currently no standardized, automated workflow that allows developers to
 \section{State of the Art}
 The current approaches to running benchmarks on STM32 devices typically rely on:
 \begin{itemize}
-	\item Vendor-Specific IDEs
+	\item \textbf{Vendor-Specific IDEs:}
 		IDEs provide an easy way to manage projects via a graphical interface, they typically provide tools for peripheral configuration, memory management and compiler options.
 		They also offer integrated build and debug environments.
-	\item Standalone CoreMark Implementations
+	\item \textbf{Standalone CoreMark Implementations:}
 		EEMBC provides CoreMark source code with minimal reference implementations, it is up to the developer to manually adapt it to the target device, providing startup and initialization code, memory configuration and a clock source.
-	\item Custom Build Systems
+	\item \textbf{Custom Build Systems:}
 		Some environments require the use of custom build systems such as CMake and Make, these tools allow the developer to manually manage dependencies, defines and other C/C++ related build configuration.
-	\item CMSIS Packs
+	\item \textbf{CMSIS Packs:}
 		CMSIS packs offer a standardized way of packaging drivers, middleware and device specific files, they provide metadata to describe the device's memory and peripheral layout.
 \end{itemize}
 \section{Critique of Current State of the Art}

@@ -87,6 +87,17 @@
 %% Disable hyphenation
 \usepackage[none]{hyphenat}
 
+
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks,
+	citecolor=black,
+	filecolor=black,
+	linkcolor=black,
+	urlcolor=black
+}
+
+
 %% Defining section, subsection and subsubsection spacing
 \usepackage{titlesec}
 \titlespacing*{\section}{7mm}{12pt}{8pt}
@@ -144,14 +155,14 @@
     sorting=none, % name, year, title
     %maxbibnames=3, % default: 3, et al.
     %backref=true,%
-    %hyperref=true,
+    hyperref=true,
     %natbib=true % natbib compatibility mode (\citep and \citet still work)
 }{biblatex}
 % @author: Stoufa
 % the option `backend=bibtex` is mandatory to avoid the “no \citation commands” error
 % https://tex.stackexchange.com/questions/18045/problem-with-compiling-bibtex-no-citation-commands-error
 %\usepackage[backend=bibtex]{biblatex} %uncomment later
-\usepackage{biblatex}
+\usepackage[backend=biber]{biblatex}
 %\renewcommand*{\bibfont}{\small\raggedright}
 %\DefineBibliographyExtras{french}{\renewcommand*\mkbibnamelast[1]{#1}}
 \addbibresource{biblio.bib}
