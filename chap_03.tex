@@ -1,7 +1,7 @@
 \chapter{Objectives Specification and Work Environment}
 
 \section*{Introduction}
-This chapter will first define the project's functional and non-functional requirements, then we will discuss the chosen structural deceisions , explaining the reasoning behind their selection. Finally we will specify the hardware and software resources necessary for this project.
+This chapter will first define the project's functional and non-functional requirements, then we will discuss the chosen structural decisions, explaining the reasoning behind their selection. Finally we will specify the hardware and software resources necessary for this project.
 
 \section{Project Specification}
 Requirements analysis is a fundamental phase in every project realization process. It is based on the study of the project's features as well as the constraints. In this section, we will cover both the functional and non-functional requirements.
@@ -70,7 +70,7 @@ Ensuring the cross-toolchain support is done by providing the necessary compiler
 		\item \textbf{IAR:} IAR uses the .icf file extension as well as proprietary syntax for the linking phase, it allows the user to simply declare regions and optionally sections and takes care of the rest.
 		\item \textbf{ARM:} ARM compiler uses the .sct file extension, you only have to declare memory regions and the rest is handled either in C code or by the compiler directly.
 	\end{itemize}
-	\item \textbf{Startup Files} The startup file is written in assembly (This approach is changed in HAL2), and although most of the code is common between the 3 compilers, some specific instructions/symbols are different, as well as the libc initialization function is different as each compiler uses a different implementation.
+	\item \textbf{Startup Files} The startup file is written in assembly (this approach is changed in HAL2), and although most of the code is common between the 3 compilers, some specific instructions/symbols are different, as well as the libc initialization function is different as each compiler uses a different implementation.
 	\item \textbf{Compiler Options} Each compiler has their own set of compiler flags to be used, providing each one with the appropriate configuration is crucial to ensure consistent running.
 	\item \textbf{Generic Print Function Implementation} As mentioned prior, each compiler uses a different implementation of libc, meaning that the syscall behind the standard library's printf function are different, providing our own implementation and passing it to CoreMark for result reporting is the most efficient and platform-agnostic solution.
 \end{itemize}
@@ -198,10 +198,10 @@ Refer to Table \ref{tab:use_cases} for an in-depth explanation:
 	Performance results are compared across different devices, toolchains, or configurations to guide hardware selection or optimization decisions.
 \end{xltabular}
 
-\section{Work Environment}
+\section*{Work Environment}
 In this section, we outline the hardware and software resources utilized during the internship project that were essential for the development testing, and validation.
 
-\subsection{Hardware Resources}
+\section{Hardware Resources}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=15cm]{img/ST_Summer_Internship/arm_cortex_mcu_portfolio.png}
@@ -247,7 +247,7 @@ Table \ref{tab:stm32_mcu_families} describes all the available families:
 	\midrule
 	STM32F3 &
 	Arm Cortex-M4 &
-	72MHz & 32-512KB & 16-80KB & CCM-SRAM and FPU/DFP instructions \\
+	72MHz & 32-512KB & 16-80KB & CCM-SRAM and FPU/DSP instructions \\
 	\midrule
 	STM32F4 &
 	Arm Cortex-M4 &
@@ -263,7 +263,7 @@ Table \ref{tab:stm32_mcu_families} describes all the available families:
 	\midrule
 	STM32G4 &
 	Arm Cortex-M4 &
-	170MHz & 32-512KB & 32-128KB & CCM-SRAM and FPU/DFP instructions \\
+	170MHz & 32-512KB & 32-128KB & CCM-SRAM and FPU/DSP instructions \\
 	\midrule
 	STM32H5 &
 	Arm Cortex-M33 &
@@ -327,49 +327,125 @@ Table \ref{tab:stm32_mcu_families} describes all the available families:
 	
 \end{xltabular}
 
-\subsection{Software Resources}
+\section{Software Resources}
 The following software tools were used for the  development, debugging and testing of the project:
-\subsection*{Programming Languages}
+\subsection{Programming Languages}
 \begin{itemize}
 	\item \textbf{C:}
-	 C is a general-purpose programming language. By design, C gives the programmer relatively direct access to the features of the typical CPU architecture, customized for the target instruction set. It has been and continues to be used to implement operating systems (especially kernels), device drivers, and protocol stacks, and embedded applications. C is used on computers that range from the largest supercomputers to the smallest microcontrollers. 
+	 C is a general-purpose programming language. By design, it gives the programmer relatively direct access to the features of the typical CPU architecture, customized for the target instruction set. It has been and continues to be used to implement operating systems (especially kernels), device drivers, protocol stacks, and embedded applications. C is used on computers that range from the largest supercomputers to the smallest microcontrollers. 
 	\item \textbf{Go:}
 	 Go (or Golang) is a high-level general purpose programming language that is statically typed and compiled. It is known for the simplicity of its syntax and the efficiency of development that it enables by the inclusion of a large standard library supplying many needs for common projects.
 	\item \textbf{Python:}
 	 Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.
 	 Python is dynamically type-checked and garbage-collected. It supports multiple programming paradigms, including structured (particularly procedural), object-oriented and functional programming. 
 \end{itemize}
-\subsection*{Integrated Development Environments and Text Editors}
-\subsubsection{Keil \textmu vision}
-\subsubsection{IAR Embedded Workbench}
-IAR Embedded Workbench is an integrated development environment (IDE) used for programming, debugging, and optimizing embedded applications. It provides comprehensive support for STM32 microcontrollers. Key features include:
-\begin{itemize}
-    \item Advanced debugging capabilities with breakpoints, watch windows, and real-time data visualization.
-    \item Code optimization tools to improve performance and reduce memory footprint.
-    \item Integrated support for STM32CubeMX, allowing seamless project setup and configuration.
-\end{itemize}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=8cm]{img/IAR.png}
-  \caption{IAR Embedded Workbench}
-  \label{fig:IAR}
-\end{figure}
+\subsection{Integrated Development Environments and Text Editors}
 \subsubsection{Visual Studio Code}
-\subsection*{Embedded Systems Compiler Toolchains}
+Visual Studio Code (VS Code) is an extensible code editor developed by Microsoft for Windows, Linux, macOS and web browsers. Features include support for debugging, syntax highlighting, intelligent code completion, snippets, code refactoring, and embedded version control with Git. Users can install extensions that add functionality.
+Table \ref{tab:vscode_extensions} goes over the most impactful extensions during the development of the project.
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{}}
+	\caption{Relevant VSCode Extensions\label{tab:vscode_extensions}} \\
+	\toprule
+	\textbf{Extension} & \textbf{Description} \\
+	\midrule
+	\endfirsthead % Header for first page
+	
+	\multicolumn{2}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+	\toprule
+	\textbf{Extension} & \textbf{Description} \\
+	\midrule
+	\endhead % Header for subsequent pages
+	
+	\multicolumn{2}{r}{{Continued on next page}} \\
+	\endfoot % Footer for all pages except last
+	\bottomrule
+	\endlastfoot % Footer for the last page
+	
+	Arm CMSIS Solution & The Arm CMSIS Solution extension is a graphical user interface for csolution projects that use the CMSIS-Toolbox. The extension supports microcontroller devices that incorporate Arm Cortex®-M processors and works with various C/C++ compilers and debuggers.\\
+	\midrule
+	Arm CMSIS Debugger & The Arm CMSIS Debugger extension pack is a comprehensive debug platform for Arm Cortex-M processor-based devices that uses the GDB/MI protocol. It supports single and multi-core processor systems, it includes pyOCD for target connection and image download, as well as GDB for core debugging features.\\
+	\midrule
+	Serial Monitor & The Serial Monitor extension provides a serial monitor to view output from as well as send messages to serial ports. This is often useful when testing or debugging programs on embedded devices. \\
+	\midrule
+	ELFInsight & ElfInsight is an extension to analyze ARM Cortex-M ELF files, it offers a streamlined interface to view symbol tables, inspect memory usage and visualize function call graph.\\
+\end{xltabular}
+\subsection{Compiler Toolchains}
 \subsubsection{GCC}
+The GCC compiler is an open-source C/C++ compiler, and is part of the GNU utilities, ARM provides their own implementation, prefixed with "arm-none-eabi" and can target most ARM architectures such as ARMv7 and ARMv8.
 \subsubsection{ARM Compiler v6}
+As well as providing a cross-compiling gcc toolchain, ARM has their own compiler based on CLANG and LLVM technologies called ARM compiler.
 \subsubsection{IAR Toolchain}
-\subsection*{Development Tools}
+IAR Systems is a Swedish computer software company that offers development tools for embedded systems. They are known for having a comprehensive development suite and an optimized compiler based on GCC.
+\subsection{Development Tools}
 \subsubsection{CMake}
+CMake is a free, open-source, cross-platform, software development tool for building applications via compiler-independent instructions. It also can automate testing, packaging and installation. It runs on a variety of platforms and supports many programming languages.
+As a meta-build tool, CMake configures native build tools which in turn build the codebase. CMake generates configuration files for other build tools based on CMake-specific configuration files. The other tools are responsible for more directly building; using the generated files. A single set of CMake-specific configuration files can be used to build a codebase using the native build tools of multiple platforms.
+\subsubsection{Ninja}
+Ninja is a small build system with a focus on speed. It differs from other build systems in two major respects: it is designed to have its input files generated by a higher-level build system, and it is designed to run builds as fast as possible.
 \subsubsection{CMSIS-Toolbox}
+The CMSIS-Toolbox provides command-line tools for project creation and build of embedded applications utilizing CMSIS-Packs. It supports multiple compilation tools. It also helps with software pack creation, maintenance, and distribution utilizing the CMSIS-Pack format.
+\subsubsection*{Overall Workflow}
+The CMSIS-Toolbox includes the following tools for the creation of embedded applications:
 \begin{itemize}
-	\item \textbf{csolution}
-	\item \textbf{cproject}
-	\item \textbf{cpackget}
+	\item \textbf{ Pack Manager (cpackget):} install and manage software packs in the host development environment.
+	\item \textbf{Project Manager (csolution):} create build information for embedded applications that consist of one or more related projects. It performs the following operations:
+	\begin{itemize}
+		\item \textbf{In the Project Area:} Generate build information files *.cbuild-idx.yml and *.cbuild.yml with all relevant project information for the build process.
+		\item \textbf{In the RTE Directory:}
+		\begin{itemize}
+			\item Generate for each context the RTE\_components.h file and pre-include files from the software pack (*.pdsc) metadata.
+			\item Copy the configuration files from selected software componentsand provide PLM information.
+		\end{itemize}
+	\end{itemize}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=15cm]{img/ST_Summer_Internship/csolution-operation.png}
+		\caption{Csolution Operation}
+		\label{fig:csolution_op}
+	\end{figure}    
+	\item \textbf{Build Invocation (cbuild):} orchestrate the build steps utilizing CMSIS tools and a CMake compilation process. It has two overall modes :
+	\begin{itemize}
+		\item \textbf{build mode:} generates the application and is the default command.
+		\begin{itemize}
+			\item When option --packs is used, it downloads missing software packs using cpackget.
+			\item It calls csolution to process the the <name>.csolution.yml project. The output are build information files with all relevant project information for the build process.
+		\end{itemize}
+		\item  \textbf{setup mode:} generates the setup information for an IDE to populate dialogues, IntelliSense, and project outline views.
+		\begin{itemize}
+			\item Check YML file syntax against schema for all files specified by *.csolution.yml.
+			\item Check the correctness of all files specified by *.csolution.yml.
+		\end{itemize}
+	\end{itemize}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=15cm]{img/ST_Summer_Internship/cbuild-workflow.png}
+		\caption{Cbuild Workflow}
+		\label{fig:cbuild_wf}
+	\end{figure}
 \end{itemize}
 \subsubsection{PyOCD}
-\subsubsection{OpenOCD}
+pyOCD is an open source Python based tool and package for programming and debugging Arm Cortex-M microcontrollers with a wide range of debug probes. It is fully cross-platform, with support for Linux, macOS, Windows, and FreeBSD.
+Beyond its standalone capabilities, pyOCD has been integrated into the CMSIS-Toolbox ecosystem as a backend for device flashing and debugging. As a result, it simplifies the automation of programming and debugging tasks across different hardware targets and development environments.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=15cm]{img/ST_Summer_Internship/cbuild-run.png}
+	\caption{PyOCD CMSIS-Toolbox-Integrated Running and Debugging Workflow}
+	\label{fig:debug_wf}
+\end{figure}
+The CMSIS-Toolbox uses the information from the DFP and BSP to simplify the debugger configuration. It generates the file *.cbuild-run.yml that contains for one target of a csolution project all information for run and debug.
+The software packs contain information that is the basis for debug and run settings:
+\begin{itemize}
+	\item Flash algorithms of device memory (in DFP) and board memory (in BSP).
+	\item On-board debug adapter (a default programming/debug channel) including features.
+	\item Available memory of device and board.
+	\item Device parameters such as processor core(s) and clock speed.
+	\item Debug Access Sequences and System Description Files.
+	\item Debug Configuration files (*.dbgconf) that configure device properties such as trace pins.
+	\item CMSIS-SVD SVD files for viewing device peripherals.
+	\item CMSIS-View SCVD files for analysis of software components (RTOS, Middleware).
+\end{itemize}
 \subsubsection{STM32CubeProgrammer}
+STM32CubeProgrammer is a proprietary, all-in-one programming tool provided by STMicroelectronics that facilitates the flashing and configuration of STM32 microcontrollers. Supporting a wide array of connectivity options, it offers a unified interface for erasing, programming, and verifying device memory across the entire STM32 portfolio. The tool provides advanced features like secure programming, option byte management, and lifecycle management for TrustZone-enabled devices. Its support for scripting and CLI operation further enables automation in production and development environments.
 \subsubsection{STM32CubeMX}
 STM32CubeMX is a graphical software configuration tool that simplifies the development of STM32-based applications. It allows developers to:
 \begin{itemize}
@@ -377,11 +453,5 @@ STM32CubeMX is a graphical software configuration tool that simplifies the devel
 	\item Generate initialization code for STM32 microcontrollers, reducing development time.
 	\item Integrate with various IDEs, including IAR Embedded Workbench, for a streamlined development workflow.
 \end{itemize}
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=8cm]{img/CUBEMX.jpg}
-	\caption{STM32CubeMX}
-	\label{fig:mx}
-\end{figure}
 \section*{Conclusion}
 The work environment for this internship includes both hardware and software resources that are essential for the successful implementation of the project.

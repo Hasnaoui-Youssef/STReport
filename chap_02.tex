@@ -1,14 +1,14 @@
 \chapter{Theory and Key Concepts}
 
 \section*{Introduction}
-In this chapter, we will explore the key concepts essential to our project. We begin by introducing the STM32 ecosystem, providing an overview of its components and their functionalities. Following this, we delve into the theoretical aspects of benchmarking and embedded build systems relevant to our work. Finally, we will discuss the essentials of automating project generation.
+In this chapter, we will explore the key concepts essential to our project. We begin by introducing the STM32 ecosystem, providing an overview of its components and their functionalities. Following this, we delve into the theoretical aspects of benchmarking and embedded build systems relevant to our work. We then present the open-CMSIS-pack ecosystem. Afterwards, we will talk about loading and debugging embedded systems applications. Finally we will discuss the essentials of automating project generation.
 
 
 
 \section{STM32 Microcontrollers (MCUs)}
 \subsection{STM32 Series}
 STM32 microcontrollers (MCUs) are a family of 32-bit microcontrollers based on the ARM Cortex-M processor. Developed by STMicroelectronics, the STM32 series offers a wide range of products that cater to various applications, from simple embedded systems to complex industrial automation.
-The STM32 MCUs are categorized into several series, each designed to meet specific application requirements. Some of the most commonly used series are the \textbf{STM32F} series and the \textbf{STM32H} series. Within each series.
+The STM32 MCUs are categorized into several series, each designed to meet specific application requirements. Some of the most commonly used series are the \textbf{STM32F} and the \textbf{STM32H} series.
 \subsection{ARM Cortex-M}
 The STM32 microcontrollers are built around the ARM Cortex-M cores, which are designed for efficient and high-performance processing in embedded systems. 
 The ARM Cortex-M family includes several cores, such as Cortex-M0, Cortex-M4, Cortex-M7, and Cortex-M85, each offering different levels of performance and features.
@@ -25,8 +25,6 @@ The STM32Cube Firmware Package is a comprehensive software suite provided by STM
     \item \textbf{HAL:} Simplifies peripheral configuration and access through high-level APIs, reducing development complexity and allows for re-usability across different hardware.
     \item \textbf{LL Drivers:} Provide fine-grained control of peripherals with minimal overhead, suitable for performance-critical applications.
 \end{itemize}
-
-Together, these components create an environment where developers can choose the appropriate level of abstraction based on their specific requirements, all while maintaining compatibility and code re-usability across the STM32 ecosystem.
 
 
 \section{Benchmarking}
@@ -135,155 +133,183 @@ The construction of executable firmware for embedded systems necessitates interv
 Going from source code in C/C++ to executable firmware involves multiple steps, in this subsection, we will go over them, highlighting the importance of each procedure.
 \begin{itemize}
     \item \textbf{Preprocessor :} preprocessing is the first step of the build process, it expands macros and resolves defines as well as stripping comments from the code.
-    \item \textbf{Assembler :} The assembler is the part of the toolchain that translates the high-level code into assembly code, which is the human-readable format of machine instruction.
-    \item \textbf{Compiler :} Although the we use the term compilation as an equivalent to the whole process, compilation at its core is translating code into machine instructions, this step is what takes assembly mnemonics and turns them into machine code also known as object files.
+    \item \textbf{Assembler :} The assembler is the part of the toolchain that translates the high-level code into assembly code, which is the human-readable format of machine instruction, this step is done on a per-file basis.
+    \item \textbf{Compiler :} Although the we use the term compilation as an equivalent to the whole process, compilation at its core is translating code into machine instructions, this step is what takes assembly mnemonics from each file and turns them into machine code also known as object files.
     \item \textbf{Linker :} The linking stage is the final and most important part of the process, since every c file is compiled separately into its own object file, they are not executable by default, the linker is what declares memory regions and associates symbols to the appropriate sections.
 \end{itemize}
 \subsection{Embedded Systems Toolchains}
-Building applications for embedded systems is quite different from a native build process, although you can create your own cross-compilation toolchain, there are battle-tested toolchains that are available and used across the industry. The most relevant ones being:
+While a standard toolchain for native development produces binaries that run directly on the host machine, an \textbf{embedded systems toolchain} targets a separate device with its own architecture, memory constraints, and hardware interfaces. 
+This difference introduces several additional requirements beyond those of a regular host toolchain.
+
+The most significant distinction is that an embedded toolchain must generate \textbf{cross-compiled code}. 
+The compiler, assembler, and linker are configured to emit machine code compatible with the target processor's instruction set (e.g., ARM Cortex-M), rather than the host CPU. 
+This involves selecting the correct ABI and handling architectural details such as endianness, hardware floating-point support, or specialized instruction extensions.
+In addition to basic code generation, embedded toolchains typically include:
 \begin{itemize}
-    \item \textbf{GCC :} The GCC compiler is an open-source C/C++ compiler, and is part of the GNU utilities, ARM provides their own implementation, prefixed with "arm-none-eabi" and can target most ARM architectures such as ARMv7 and ARMv8.
-    \item \textbf{ARM Compiler :} As well as providing a cross-compiling gcc toolchain, ARM has their own compiler based on CLANG and LLVM technologies called ARM compiler.
-    \item \textbf{IAR Embedded Workbench:} IAR Systems is a Swedish computer software company that offers development tools for embedded systems. They are known for having a comprehensive development suite and an optimized compiler based on GCC.
+	\item \textbf{Device-Specific Startup Code:} Since embedded systems do not run an operating system by default, the toolchain must provide initialization code that configures the processor state after reset. 
+	This includes setting up the stack pointer, initializing memory sections, and defining the interrupt vector table.
+	
+	\item \textbf{Linker Scripts for Memory Mapping:} Unlike host systems where memory layout is abstracted by the operating system, embedded applications must explicitly define where code, data, and peripherals reside in memory. 
+	The linker script enforces this mapping, ensuring that the binary fits within the device’s regions.
+	
+	\item \textbf{Runtime Support Libraries:} Embedded toolchains include specialized implementations of standard libraries designed to operate without an operating system. 
+	These lightweight libraries provide essential functionality such as math operations or memory management while avoiding features that rely on system calls.
+	
+	\item \textbf{Debugging Interfaces:} Many embedded toolchains integrate support for hardware debugging through interfaces like SWD or JTAG. 
+	This enables loading binaries onto the target, setting breakpoints, and inspecting registers or memory directly on the device.
+	
+	\item \textbf{Output Conversion Utilities:} Since microcontrollers typically require firmware images in raw binary or hex formats, embedded toolchains include utilities to convert the standard elf into target-specific formats such as Intel HEX or Motorola S-Record.
 \end{itemize}
+
 \subsection{Build Runners}
-Whereas simple projects can be compiled directly by invoking the corresponding command via an IDE or a terminal, as the project grows more complex, maintaining dependencies and flags becomes hard; that's where build runners or build system generators come in. They apply a rule-based mechanism to produce the desired output whether it be a library or an executable from its input which is the project's source code.
-We find two main runners used:
+While small embedded projects can be compiled by invoking individual commands manually, this approach quickly becomes impractical as the codebase grows. 
+Modern projects often contain hundreds of source files, complex dependencies, and different build configurations for debugging or optimization. 
+
+A \textbf{build runner} (or build automation tool) automates this process by defining a set of rules that specify how source files should be transformed into the desired output.
+At its core, a build runner:
 \begin{itemize}
-    \item \textbf{Make:} Make is a tool which controls the generation of executables and other non-source files of a program from the program's source files. Make is based on a file named "Makefile" at the top level of the project, it contains the necessary informations describing the build process and how to compute the desired output files.
-    \item \textbf{Ninja:} Ninja is a small build system with a focus on speed. It differs from other build systems in two major respects: it is designed to have its input files generated by a higher-level build system, and it is designed to run builds as fast as possible.
+	\item Tracks dependencies between source files and generated files.
+	\item Determines which parts of the project need to be rebuilt when a file changes.
+	\item Invokes the appropriate compiler, assembler, or linker commands in the correct order.
 \end{itemize}
-\newpage
-\subsection{CMake}
-Although build runners alone work in a small scope, they do not provide enough flexibility to work across different environments or have multiple targets. This is the problem that CMake solves; it is a cross-platform build-system generator, that allows your project to run in different contexts without having to write platform specific configuration. It supports dependency management, integrates seamlessly with multiple IDEs and toolchains and offers builtin test and packaging support.
+
+Build runners operate based on explicit instructions provided through configuration files or scripts.
+\subsection{Build Systems}
+A \textbf{build system} is a higher-level abstraction built on top of build runners.
+While a build runner executes rules, a build system focuses on generating and managing those rules for complex projects, often in a platform-agnostic way.
+
+Build systems provide several key advantages:
+\begin{itemize}
+	\item \textbf{Portability:} They enable the same project to be built on different platforms or with different toolchains without rewriting build scripts.
+	\item \textbf{Configuration Management:} They support multiple build configurations, such as debug or release builds, with different compiler flags and options.
+	\item \textbf{Scalability:} They handle large projects with multiple modules, libraries, and external dependencies.
+\end{itemize}
+
+In practice, a build system generates low-level build instructions for a runner. 
+For example, it may produce a set of dependency files and rules that a runner can execute efficiently. 
+This separation of concerns allows developers to describe the project structure and relationships at a higher level, without directly managing every compiler or linker invocation.
+
+In the context of embedded systems, build systems are particularly valuable because they can integrate device-specific settings, such as memory layouts or hardware abstraction layers, into the build process while remaining flexible enough to support multiple target devices and toolchains.
+
+\section{Debugging}
+Debugging embedded systems involves identifying and resolving issues that may occur in both hardware and software components. Unlike traditional software debugging, embedded debugging must account for real-time constraints, limited system visibility, and direct interaction with hardware peripherals. STM32 microcontrollers provide built-in debugging interfaces and features that greatly facilitate this process.
+
+\subsection{Challenges of Embedded Debugging}
+Embedded debugging presents unique challenges:
+\begin{itemize}
+	\item \textbf{Limited Visibility:} Unlike desktop systems, embedded devices lack standard output and comprehensive logging mechanisms, making it harder to inspect internal states.
+	\item \textbf{Real-Time Behavior:} Debugging can disrupt timing-sensitive operations, potentially masking or introducing bugs.
+	\item \textbf{Hardware Dependence:} Failures may stem from peripheral misconfiguration, incorrect clock settings, or external circuitry issues.
+	\item \textbf{Resource Constraints:} Limited memory and processing power restrict the use of advanced debugging techniques.
+\end{itemize}
+
+\subsection{Debugging Interfaces and Tools}
+In the case of STM32 devices, they integrate hardware support for debugging through two primary interfaces:
+\begin{itemize}
+	\item \textbf{SWD:} A two-pin protocol widely used for STM32 devices. It allows memory inspection, breakpoint handling, and peripheral monitoring with minimal I/O overhead.
+	\item \textbf{JTAG:} A more comprehensive four-wire interface offering additional features such as boundary scan testing.
+\end{itemize}
+These interfaces are typically accessed via debug probes such as ST-LINK, J-Link, or CMSIS-DAP. They are supported by a wide range of IDEs and toolchains, including STM32CubeIDE, Keil µVision, and open-source solutions like OpenOCD and GDB.
+
+\subsection{Core Debugging Techniques}
+The following techniques are commonly used when debugging MCU applications:
+\begin{itemize}
+	\item \textbf{Breakpoints and Stepping:} Halt execution at specific lines to inspect variables and system state.
+	\item \textbf{Watchpoints:} Trigger a halt when a specific memory location is read or written, useful for diagnosing memory corruption or stack overflows.
+	\item \textbf{Peripheral Inspection:} Live monitoring of hardware registers to verify correct peripheral configuration.
+	\item \textbf{Tracing:} Using the SWO pin to stream real-time events such as `printf`-style logs without blocking the CPU.
+\end{itemize}
+
+\subsection{Firmware-Based Debugging Aids}
+Alongside hardware debuggers , simple firmware techniques can provide additional help in order to diagnose some issues:
+\begin{itemize}
+	\item \textbf{UART Logging:} Redirecting output to a UART peripheral for runtime logging. Though simple, it can introduce timing delays.
+	\item \textbf{LED and GPIO Debugging:} Toggling pins to indicate execution flow or measure timing with an oscilloscope or logic analyzer.
+	\item \textbf{Watchdog Management:} Pausing watchdog timers during debugging using the DBGMCU registers to prevent unintended resets.
+\end{itemize}
+
 \section{Open-CMSIS-Pack}
-Software compatibility for component re-use has long been a challenge in the microcontroller space, which is much more diverse at the hardware level compared to PCs or the data center. Open-CMSIS-Pack removes this complexity, delivering a standard for software component packaging and related foundation tools for validation, distribution, integration, management, and maintenance.
+Software compatibility for component re-use has long been a challenge in the microcontroller space, which is much more diverse at the hardware level compared to PCs. Open-CMSIS-Pack removes this complexity, delivering a standard for software component packaging and related foundation tools for validation, distribution, integration, management, and maintenance.
 \subsection{CMSIS-Packs} CMSIS-Packs are software components that contain device specific startup code, peripheral drivers, middleware, and board support packages. They provide a standardized delivery mechanism for software components and enable consistent project configuration across different development environments.
 \begin{figure}[H]
-  \centering
-  \includegraphics[height=10cm]{img/ST_Summer_Internship/pack_trinity.png}
-  \caption{Software Packs Types}
-  \label{fig:sw_trinity}
+	\centering
+	\includegraphics[height=10cm]{img/ST_Summer_Internship/pack_trinity.png}
+	\caption{Software Packs Types}
+	\label{fig:sw_trinity}
 \end{figure}
-\subsubsection{CMSIS-Pack Format}
+\subsection{CMSIS-Pack Format}
 The CMSIS-Pack format is used to deliver a software package and is aimed to be scalable for future requirements. It provides a management process and supports a tool independent distribution for:
 \begin{itemize}
-    \item \textbf{Device Support :}
-    \begin{itemize}
-        \item Information about the processor and it's features.
-        \item C and assembly files for the device startup and access to the memory mapped peripheral registers.
-        \item Parameters, technical information, and data sheets about the device family and the specific devices.
-        \item Device description and available peripherals.
-        \item Memory layout of internal and external RAM and ROM address ranges.
-        \item Flash algorithms for programming the device.
-        \item Debug and trace configurations as well as System View Description files for device specific display of the memory mapped peripheral registers. 
-    \end{itemize}
-    \item \textbf{Board Support :}
-    \begin{itemize}
-        \item Information about the development board and it's features.
-        \item Parameters, technical information, and data sheets about the board, the mounted microcontroller, and peripheral devices.
-        \item Drivers for on-board peripheral devices
-    \end{itemize}
-    \item \textbf{Software components :}
-    \begin{itemize}
-        \item A collection of source modules, header and configuration files as well as libraries.
-        \item Documentation of the software, including features and APIs.
-    \end{itemize}
+	\item \textbf{Device Support :}
+	\begin{itemize}
+		\item Information about the processor and it's features.
+		\item C and assembly files for the device startup and access to the memory mapped peripheral registers.
+		\item Parameters, technical information, and data sheets about the device family and the specific devices.
+		\item Device description and available peripherals.
+		\item Memory layout of internal and external RAM and ROM address ranges.
+		\item Flash algorithms for programming the device.
+		\item Debug and trace configurations as well as System View Description files for device specific display of the memory mapped peripheral registers. 
+	\end{itemize}
+	\item \textbf{Board Support :}
+	\begin{itemize}
+		\item Information about the development board and it's features.
+		\item Parameters, technical information, and data sheets about the board, the mounted microcontroller, and peripheral devices.
+		\item Drivers for on-board peripheral devices
+	\end{itemize}
+	\item \textbf{Software components :}
+	\begin{itemize}
+		\item A collection of source modules, header and configuration files as well as libraries.
+		\item Documentation of the software, including features and APIs.
+	\end{itemize}
 \end{itemize}
-\subsubsection{Software Components}
+\subsection{Software Components}
 A software component encapsulates a set of related functions. They can contain C/C++ source files, object code, assembler files, header files, or libraries. The interfaces of software components should be defined with APIs to make them substitutable by other compatible components at design time.
 CMSIS software components can also refer to multiple interfaces of other software components. This could be also a hardware abstraction layer for a device peripheral.
 Configuration files contain application specific parameters for a software component. These files are typically copied to the user project workspace; all other files are not modified by the user and can remain in a separate location which avoids that a project workspace is polluted by many source files that should be considered as “black-box” elements by the application programmer.
 \begin{figure}[H]
-  \centering
-  \includegraphics[width=15cm]{img/ST_Summer_Internship/software_component.png}
-  \caption{Software Component Interface}
-  \label{fig:sw_comp}
+	\centering
+	\includegraphics[width=15cm]{img/ST_Summer_Internship/software_component.png}
+	\caption{Software Component Interface}
+	\label{fig:sw_comp}
 \end{figure}
 \subsubsection{Component classification}
 A component lists the files that belong to it and that are relevant for a project. The component itself or each individual file may refer to a condition that must resolve to true; if it is false, the component or file is not applicable in the given context.
 
 Each software component must have the following attributes that are used to identify the component:
 \begin{itemize}
-    \item \textbf{Component Class (Cclass):} A component class which is a top-level component name, for example CMSIS, Device, File System
-    \item \textbf{Component Group (Cgroup):} A component group name, for example CMSIS:RTOS, Device:Startup, File System:CORE
-    \item \textbf{Component Version (Cversion):} the version number of the software component.
+	\item \textbf{Component Class (Cclass):} A component class which is a top-level component name, for example CMSIS, Device, File System
+	\item \textbf{Component Group (Cgroup):} A component group name, for example CMSIS:RTOS, Device:Startup, File System:CORE
+	\item \textbf{Component Version (Cversion):} the version number of the software component.
 \end{itemize}
 
 
 
-\subsection{CMSIS-Toolbox} The CMSIS-Toolbox provides command-line tools for project creation and build of embedded applications utilizing CMSIS-Packs. It supports multiple compilation tools. It also helps you with software pack creation, maintenance, and distribution utilizing the CMSIS-Pack format.
-\subsubsection{Overall Workflow}
-The CMSIS-Toolbox includes the following tools for the creation of embedded applications:
-\begin{itemize}
-    \item \textbf{ Pack Manager (cpackget):} install and manage software packs in the host development environment.
-    \item \textbf{Project Manager (csolution):} create build information for embedded applications that consist of one or more related projects. It performs the following operations:
-    \begin{itemize}
-        \item \textbf{In the Project Area:} Generate build information files *.cbuild-idx.yml and *.cbuild.yml with all relevant project information for the build process.
-        \item \textbf{In the RTE Directory:}
-        \begin{itemize}
-            \item Generate for each context the RTE\_components.h file and pre-include files from the software pack (*.pdsc) metadata.
-            \item Copy the configuration files from selected software componentsand provide PLM information.
-        \end{itemize}
-    \end{itemize}
-    \begin{figure}[H]
-      \centering
-      \includegraphics[width=15cm]{img/ST_Summer_Internship/csolution-operation.png}
-      \caption{Csolution Operation}
-      \label{fig:csolution_op}
-    \end{figure}    
-    \item \textbf{Build Invocation (cbuild):} orchestrate the build steps utilizing CMSIS tools and a CMake compilation process. It has two overall modes :
-    \begin{itemize}
-        \item \textbf{build mode:} generates the application and is the default command.
-        \begin{itemize}
-            \item When option --packs is used, it downloads missing software packs using cpackget.
-            \item It calls csolution to process the the <name>.csolution.yml project. The output are build information files with all relevant project information for the build process.
-        \end{itemize}
-        \item  \textbf{setup mode:} generates the setup information for an IDE to populate dialogues, IntelliSense, and project outline views.
-        \begin{itemize}
-            \item Check YML file syntax against schema for all files specified by *.csolution.yml.
-            \item Check the correctness of all files specified by *.csolution.yml.
-        \end{itemize}
-    \end{itemize}
-    \begin{figure}[H]
-      \centering
-      \includegraphics[width=15cm]{img/ST_Summer_Internship/cbuild-workflow.png}
-      \caption{Cbuild Workflow}
-      \label{fig:cbuild_wf}
-    \end{figure}
-\end{itemize}
+\subsection{CMSIS Solution Project Structure}
+As an effort to standardize the embedded software ecosystem, the csolution(CMSIS Solution) project structure came into place, it is a set of configuration files that is meant to describe your overall application, from the workspace, to projects, software layers and default configurations.
+This approach allows the user to centralize all the configuration of an application.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=15cm]{./img/ST_Summer_Internship/csolution_project_structure.png}
+	\caption{CMSIS Solution Project Structure}
+	\label{fig:csln_files}
+\end{figure}  
 \subsubsection{CMSIS solution files}
 The CMSIS-Toolbox gets its information from the csolution project files, these are YAML configuration files used to describe the application's context:
 \begin{itemize}
-    \item \textbf{Solution file} A solution is the software view of the complete system. It combines projects that can be generated independently and therefore, manages related projects. It also specifies the targeted device(s) and build type(s). The file has the format *.csolution.yml.
-    \item \textbf{Project file} The *.cproject.yml file has the content of a single independent build step, it specifies the source files to compile, sets the include directories and the necessary defines.
-    \item \textbf{Layer file} Software layers collect source files and software components along with configuration files for reuse in different projects. Software Layers gives projects a better structure and simplifies:
-    \begin{itemize}
-        \item Development flows with evaluation boards and production hardware.
-        \item Evaluation of middleware and hardware modules across different microcontroller boards.
-        \item Code reuse across projects, i.e. board support for test-case deployment.
-        \item Test-driven software development on simulation model and hardware.
-    \end{itemize}
-    \item \textbf{Default Configuration file} The cdefault.yml file contains a common set of compiler-specific settings that select reasonable defaults with miscellaneous controls for each compiler. 
-\end{itemize}
-\subsubsection{Cbuild2cmake}
-cbuild2cmake reads the build information files *.cbuild-idx.yml and *.cbuild.yml to get all relevant project information for the build process. It generates the  output files for CMake build system; describing the overall application build process with the current context configuration, as well as the toolchain specific configuration and source file definitions for groups and software components. CMake is then invoked twice.
-\begin{itemize}
-    \item
-    CMake configuration command defines the build generator, source, and build directory with:
-    \begin{lstlisting}
-        cmake -G Ninja -S <tmpdir> -B <tmpdir> -Wnodev
-    \end{lstlisting}
-    \item
-    CMake build command to build the application program for each context with:
-    \begin{lstlisting}
-        cmake --build <tmpdir> -j <n> --target <context>
-    \end{lstlisting}
+	\item \textbf{Solution file} A solution is the software view of the complete system. It combines projects that can be generated independently and therefore, manages related projects. It also specifies the targeted device(s) and build type(s). The file has the format *.csolution.yml.
+	\item \textbf{Project file} The *.cproject.yml file has the content of a single independent build step, it specifies the source files to compile, sets the include directories and the necessary defines.
+	\item \textbf{Layer file} Software layers collect source files and software components along with configuration files for reuse in different projects. Software Layers gives projects a better structure and simplifies:
+	\begin{itemize}
+		\item Development flows with evaluation boards and production hardware.
+		\item Evaluation of middleware and hardware modules across different microcontroller boards.
+		\item Code reuse across projects, i.e. board support for test-case deployment.
+		\item Test-driven software development on simulation model and hardware.
+	\end{itemize}
+	\item \textbf{Default Configuration file} The cdefault.yml file contains a common set of compiler-specific settings that select reasonable defaults with miscellaneous controls for each compiler. 
 \end{itemize}
 
 \section{Project Generation}
-When trying to run benchmarks across a wide variety of MCUs, the project structure follows the same pattern, and the dependencies can be expressed in a logical way relating to the device's metadata.
-Therefore, automating the process will prove handy since every single step can be automated.
+When trying to run benchmarks across a wide variety of MCUs, the project structure follows the same pattern, and the dependencies can be expressed in a logical way relating to the device's metadata, therefore, automating the process will prove handy.
 There are multiple techniques to be used to generate a fully working project from scratch.
 \subsection{Regular Expressions:}
     The phrase regular expressions, or regexes, is often used to mean the specific, standard textual syntax for representing patterns for matching text. Each character in a regular expression (that is, each character in the string describing its pattern) is either a metacharacter, having a special meaning, or a regular character that has a literal meaning.
@@ -316,7 +342,7 @@ File generation templates are pre-defined structures or blueprints used to creat
 \subsubsection{Template Definition}
 A template file is created containing boilerplate text, placeholders for dynamic content (variables), and sometimes logic for conditional generation.
 \subsubsection{Parameterization}
-The template defines parameters that can be filled in by the user or a program when generating a new file. These parameters can include names, dates, specific values, or other relevant information.
+The template defines parameters that can be filled in by the user or a program when generating a new file. These parameters can be single-valued, arrays or maps containing relevant information.
 \subsubsection{Template Execution}
 When a new file is needed, the template is selected, and the required parameters are provided. A generation engine then processes the template, replacing placeholders with the provided values and executing any embedded logic to produce the final file.
 \begin{figure}[H]
@@ -348,42 +374,13 @@ The utility cbridge gets as parameter the <solution-name>.cbuild-gen-idx.yml and
 	\item <project-name>.cgen.yml (created by cbridge) provides the data for project import into the csolution build process.
 \end{itemize}
 \newpage
-\section{Loading And Debugging}
-Within the context of this project, there are two different approaches to running our application, we will explore both of them providing insight on the advantages of limitations of both.
-\subsection{PyOCD}
-In the ideal usecase, \textbf{PyOCD} offers all the needed tools to run and debug our application.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=15cm]{img/ST_Summer_Internship/cbuild-run.png}
-    \caption{PyOCD Running and Debugging Workflow}
-    \label{fig:debug_wf}
-\end{figure}
-The CMSIS-Toolbox build system manages software packs that contain information about device, board, and software components. It controls the build output (typically ELF/DWARF files), and has provisions for HEX, BIN and post-processing.
-\subsubsection*{Configuration \& Settings}
-The CMSIS-Toolbox uses the information from the DFP and BSP to simplify the debugger configuration. It generates the file *.cbuild-run.yml that contains for one target of a csolution project all information for run and debug.
-The software packs contain information that is the basis for debug and run settings:
-\begin{itemize}
-    \item Flash algorithms of device memory (in DFP) and board memory (in BSP).
-    \item On-board debug adapter (a default programming/debug channel) including features.
-    \item Available memory of device and board.
-    \item Device parameters such as processor core(s) and clock speed.
-    \item Debug Access Sequences and System Description Files that support more complex Cortex-A/R/M configurations.
-    \item Debug Configuration files (*.dbgconf) that configure device properties such as trace pins.
-    \item CMSIS-SVD SVD files for viewing device peripherals.
-    \item CMSIS-View SCVD files for analysis of software components (RTOS, Middleware).
-\end{itemize}
-\subsection{STM32CubeProgrammer}
-While more convenient, PyOCD relies on recognizing the connected device in order to perform its operations, while for commercialized devices, this works fine. When working on products that have not been launched, or better yet, still in the pre-production phase, only available as a prototype running on an FPGA, PyOCD no longer can serve its purpose.
-That's where \textbf{STM32CubeProgrammer} comes into play, since the tool is developed within the premises of \textbf{ST}, we are able to load our program into all STM32 MCUs.
+
+
 \section*{Conclusion}
-This chapter provided the foundational knowledge required to understand the subsequent work in this report. We began by exploring the STM32 ecosystem, examining the wide range of available microcontrollers, their ARM Cortex-M cores, and critical peripherals such as UART. We also reviewed the STM32Cube firmware package, which streamlines development through standardized libraries like CMSIS, HAL, and LL drivers.
+This chapter has provided an overview of the key theoretical concepts and technologies relevant to the project. We began by exploring the STM32 microcontroller ecosystem, including the various series and ARM Cortex-M cores that form the foundation of these devices. The STM32Cube firmware package was introduced as a comprehensive software suite for STM32 development.
 
-Next, we covered benchmarking principles with a focus on embedded systems. We highlighted the unique challenges of benchmarking microcontrollers, including clock source provisioning, memory mapping, and custom I/O implementations. CoreMark was introduced as a reliable and widely adopted benchmark for evaluating MCU performance in a standardized manner, providing meaningful metrics for comparison.
+We then examined the principles of benchmarking, with a particular focus on the CoreMark benchmark and its application to microcontrollers. The C/C++ build process for embedded systems was detailed, highlighting the unique requirements and toolchains needed for cross-compilation.
 
-Afterwards, we discussed the embedded systems build process, emphasizing the importance of toolchains, linking, and memory management. We examined build systems like Make, Ninja, and CMake as a higher-level generator for complex, cross-platform builds.
+The chapter also covered debugging techniques specific to embedded systems, outlining both hardware interfaces like SWD and JTAG, as well as firmware-based approaches. The Open-CMSIS-Pack standard was presented as a solution for software component packaging and project configuration in the microcontroller space.
 
-A key part of this chapter was the introduction of Open-CMSIS-Pack and the CMSIS-Toolbox, which address the complexity of managing device- and board-specific software components. We detailed their role in packaging, versioning, and automating builds.
-
-Finally, we explored project generation techniques, from basic methods like regular expressions and templating to advanced integration with generators like STM32CubeMX.
-
-In summary, this chapter established a comprehensive theoretical framework, connecting concepts of hardware, benchmarking, toolchains, and automation. These concepts form the backbone of the methodology applied in later chapters, ensuring that the processes for benchmarking and project generation are both systematic and scalable.
+Finally, we discussed methods for automating project generation, including the use of regular expressions, file templates, and specialized tools like the CMSIS-Toolbox generators. These concepts and tools form the theoretical and practical basis for the work conducted during this internship, setting the stage for the implementation and results that will be presented in subsequent chapters.

@@ -132,12 +132,12 @@ The proposed solution centers around the aspects of automation and standardizati
 The key aspects of the solution are:
 \begin{itemize}
   \item \textbf{Unified Project structure}
-  By making use of the csolution project files \(*.csolution.yml, *.cproject.yml etc...\), we can describe build configuration, dependencies, and device parameters in a centralized way, simplifying maintenance and reuse.
+  By making use of the csolution project files, we can describe build configuration, dependencies, and device parameters in a centralized way, simplifying maintenance and reuse.
   \item \textbf{Automating Project Generation}
-  While the \textbf{Csolution project structure} offers a standardized way of configuring projects, the source code of the application has to be managed someway, although generators like \textbf{STM32CubeMX} does a decent job of generating peripheral configuration, it is still slow and GUI based, so it can't be used in a fully automated manner.
+  While the \textbf{Csolution project structure} offers a standardized manner of configuring projects, the source code of the application has to be managed in some way, although generators like \textbf{STM32CubeMX} does a decent job of generating peripheral configuration, it is still slow and GUI based, so it can't be used in a fully automated environment.
   Therefore, we can make use of creating a tool to handle automating source code and linker script generation, device configuration and even generating the csolution project files.
   \item \textbf{Portable and Cross-Toolchain Support}
-  Allow the project to be compiled through the main toolchains used in embedded applications, through \textbf{CMSIS-Toolbox}, as well as ensuring the project can be built and debugged in multiple IDE environments.
+  Allow the project to be compiled by the main toolchains used in embedded applications, through \textbf{CMSIS-Toolbox}, as well as ensuring the project can be built and debugged in multiple IDE environments.
   \item \textbf{CoreMark Integration}
   Embed the \textbf{CoreMark} source code into the standardized generation template, making it easily portable amongst \textbf{all} STM32 MCU targets. 
 \end{itemize}
