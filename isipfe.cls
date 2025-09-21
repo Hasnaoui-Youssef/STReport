@@ -38,25 +38,25 @@
 % otherwise LaTeX will spew on each page
 \addtolength{\headheight}{2.5pt}
 
-% first set to zero ... 
+% first set to zero ...
 \setlength{\oddsidemargin}{-1in}
 \setlength{\evensidemargin}{-1in}
-\setlength{\topmargin}{-1in}       
+\setlength{\topmargin}{-1in}
 
 % adjust these if printer is off by a bit
 \setlength{\hoffset}{0mm}
 \setlength{\voffset}{0mm}
 
-% PS also that the optimal number of characters per line 
+% PS also that the optimal number of characters per line
 % for readability is only 60-70, we're over so we'll be a
 % bit more generous on the evensidemargin
 
-\addtolength{\oddsidemargin}{22mm} 
+\addtolength{\oddsidemargin}{22mm}
 \addtolength{\evensidemargin}{22mm}
 \addtolength{\topmargin}{20mm}
 
 % set up some of the spacing
-\setlength{\marginparwidth}{40pt}  
+\setlength{\marginparwidth}{40pt}
 \setlength{\marginparsep}{10pt}
 \setlength{\headsep}{0.2in}
 
@@ -86,6 +86,7 @@
 
 %% Disable hyphenation
 \usepackage[none]{hyphenat}
+\usepackage{xr}
 
 
 \usepackage{hyperref}
@@ -235,8 +236,8 @@
 \def\@makechapterhead#1{
     \vspace*{30\p@}%
     {\parindent \z@ \centering \reset@font
-        \thickhrulefill\quad 
-        \scshape\bfseries\textit{\@chapapp{}  \thechapter}  
+        \thickhrulefill\quad
+        \scshape\bfseries\textit{\@chapapp{}  \thechapter}
         \quad \thickhrulefill
         \par\nobreak
         \vspace*{10\p@}%

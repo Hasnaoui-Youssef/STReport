@@ -1,394 +1,427 @@
+\externaldocument{chap_02}
 \chapter{Solution Implementation}
 \label{ch:implementation}
 
 \section*{Introduction}
-In this chapter, we provide a detailed step-by-step explanation of the implementation of the "CryptoEngine" demo. This demo showcases the use of cryptographic techniques to establish secure communication between two microcontrollers, specifically the STM32XX and STM32U545 MCUs.
-
-\section{Demo Overview}
-The following section outlines the sequence of operations involved in the "CryptoEngine" demo.
-The steps are detailed in Table \ref{tab:authenticated_encryption_steps}:
-\begin{longtable}{|c|p{6cm}|p{6cm}|}
-\caption{Steps for "CryptoEngine" Demo} \label{tab:authenticated_encryption_steps} \\
-
-\hline
-\textbf{Step} & \textbf{Alice} & \textbf{Bob} \\
-\hline
-\endfirsthead
-
-\multicolumn{3}{c}%
-{{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
-\hline
-\textbf{Step} & \textbf{Alice} & \textbf{Bob} \\
-\hline
-\endhead
-
-\hline \multicolumn{3}{|r|}{{Continued on next page}} \\ \hline
-\endfoot
-
-\hline
-\endlastfoot
-
-1 & Generate ECDSA Key Pair & Generate ECDSA Key Pair \\
-  & \multicolumn{2}{p{12cm}|}{\textit{(ECDSA keys are used for creating and verifying digital signatures)}} \\
-\hline
-2 & Generate ECDH Key Pair & Generate ECDH Key Pair \\
-  & \multicolumn{2}{p{12cm}|}{\textit{(ECDH keys are used for establishing a shared secret)}} \\
-\hline
-3 & Send ECDSA Public Key + Signature to Bob & Send ECDSA Public Key + Signature to Alice \\
-\hline
-4 & Verify Bob's Signature using his ECDSA Public Key & Verify Alice's Signature using her ECDSA Public Key \\
-  & \multicolumn{2}{p{12cm}|}{\textit{(Ensures the authenticity of the participants)}} \\
-\hline
-5 & Send ECDH Public Key to Bob & Send ECDH Public Key to Alice \\
-\hline
-6 & Compute ECDH Shared Secret using own Private ECDH Key and Bob's Public ECDH Key & Compute ECDH Shared Secret using own Private ECDH Key and Alice's Public ECDH Key \\
-  & \multicolumn{2}{p{12cm}|}{\textit{(Shared secret is used as the basis for deriving encryption keys)}} \\
-\hline
-7 & Derive AES GCM Key and IV from ECDH Shared Secret & Derive AES GCM Key and IV from ECDH Shared Secret \\
- 
-\hline
-8 & Encrypt and Send Message using AES GCM & Decrypt and Verify Message using AES GCM \\
-\hline
-9 & Decrypt and Verify Response using AES GCM & Encrypt and Send Response using AES GCM \\
-\hline
-
-\end{longtable}
-
-\section{Sequence Diagram}
+In this chapter, we provide an in-depth explanation of the technical aspect of our project, we will go over the project's evolvement over its lifetime, the architecture of the CoreMark project and the generation tool's inner workings.
+\section{Project Development Overview}
+This section describes how the project evolved in a chronological order, alternating between research, development, testing and analysis.
+\subsection{Porting CoreMark On STM32 Devices}
+The first step during the internship was to get familiar with CoreMark, studying how it works and figuring out the necessary configurations to get it to work on embedded systems, particularly STM32 devices.
+The structure of CoreMark's source code is done in a way such that all platform specific dependencies are located in a source header file pair called core\_portme.c and core\_portme.h respectively. Within these files, we find the necessary changes and implementations needed to run the project.
+\subsubsection{Clock Source}
+CoreMark needs the user to implement a timing function in order to provide accurate measures of the CPU's performance.\par
+\noindent In embedded systems, Timers are the most efficient way of time measurement. A timer relies on a tick register that decrements periodically, and possibly resets to its maximum value when it reaches 0.\par
+\noindent ARM provides a 24-bit system timer SysTick integrated in Cortex-M processor cores.
+Manipulating this timer is done via 4 registers :
+\begin{itemize}
+  \item \textbf{SYST\_CSR} The SysTick Control and Status register enables the SysTick features, such as specifying whether the clock source is external or internal, enabling exceptions and enabling the timer
+  \item \textbf{SYST\_RVR} The SysTick Reload Value register specifies the start value of the timer, this is the value to be loaded into SYST\_CVR every time its value reaches 0.
+  \item \textbf{SYST\_CVR} The SysTick Current Value register contains the current value of the SysTick counter.
+  \item \textbf{SYST\_CALIB} The Systick Calibration Value register indicates the SysTick calibration properties, it is optional and not required to be implemented.
+\end{itemize}
+Figures \ref{fig:cm_starttime} and \ref{fig:cm_endtime} below show the implementation details of the start and stop functions for CoreMark.
 \begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{img/ST_Summer_Internship/cm_startfn.png}
+    \caption{CoreMark Timing Start Function}\label{fig:cm_starttime}
   \centering
-  \includegraphics[width=17cm]{img/numbered auth enc.png}
-  \caption{Sequence Diagram for "CryptoEngine" Demo }
-  \label{fig:sequence_diagram}
 \end{figure}
-
-\hspace{1cm}The Sequence Diagram in Figure \ref{fig:sequence_diagram} illustrates the process of authenticated encryption using ECDSA for authentication, ECDH for key exchange, and AES GCM for encryption. The diagram shows the interactions between two participants, Alice and Bob, as they perform cryptographic operations to securely exchange messages.
-
-\textit{Note : In our demo, the STM32XX and STM32U545 MCUs will play the roles of Alice and Bob respectively.}
-
-
-
-This sequence diagram demonstrates a secure communication process where both participants authenticate each other using ECDSA, establish a shared secret using ECDH, and securely exchange messages using AES GCM. The use of these cryptographic techniques ensures the confidentiality, integrity, and authenticity of the exchanged messages.
-
-\section{Demonstration Details and Explanation}
-For confidentiality reasons we will only detail the "Bob" side of the demo, since it is using the STM32U545 MCU.
-
-\subsection{ECDSA Key Pair Generation}
-This is the first step of the demo. It involves setting up PKA peripheral to generate the public ECDSA key.
-    \subsubsection{PKA Peripheral Initialization}
-        To compute ECDSA public key we need to set the PKA mode to "ECC Fp scalar multiplication", then we need to input the cryptographic parameters in the correct addresses in PKA RAM.
-    \subsubsection{ECC Scalar Multiplication }
-        To input cryptographic parameters in PKA RAM, we need to refer to the STM32U5 reference manual \cite{U5_Refman} where we can find the specifications for using ECC Fp scalar multiplication.
-        The details of this operation can be found in Figure \ref{fig:PKA ECC}.
-
-         This figure details the address and size of every cryptography parameter involved in ECC multiplication, which we are using at this level to compute the ECDSA public key.
- Note that in our demonstration, since we are using a 256-bit curve, the size labeled as EOS (ECC Operand Size) is equal to 320 bits which are 256 bits of actual data and 64 bits of zeros which are necessary when inputting certain data to PKA RAM, as mentioned in the reference manual for U5 \cite{U5_Refman}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=15cm]{img/PKA ECC.png}
-    \caption{PKA ECC Fp Scalar Multiplication}
-    \label{fig:PKA ECC}
+    \includegraphics[width=15cm]{img/ST_Summer_Internship/cm_endfn.png}
+    \caption{CoreMark Timing End Function}\label{fig:cm_endtime}
+  \centering
 \end{figure}
+\label{sec:systick_interrupt}
+When working across the entire STM32 MCU catalog, some families can have a default base clock speed up to 128MHz, therefore, we will be using the maximum value allowed for the counter(\(2^{24}\) Ticks) to reduce the number of interrupts fired during the execution of the benchmark.\par
+\noindent Enabling the SysTick timer is done by setting the first bit(index 0) of the SYST\_CSR register to 1.\par
+\noindent To keep track of how many times the SysTick timer underflows, we utilize the 32-bit unsigned integer variable provided by ST's HAL library uwTick, we implement the SysTick interrupt handler to increment its value by 1 everytime it fires.\par
+\noindent With this method, we now can get the total number of ticks elapsed during the execution of our program with this formula :\par
+\(TotalTicks = uwTick * SysTick Reload Value + SysTick Current Value\)\par
+\noindent Subsequently, the total time elapsed in seconds would equate to:\par
+\textit{Total Time in Seconds} \(= TotalTicks / Processor Frequency\)\par \noindent
 
-
-
-
- In our case the parameters that we need to use are provided by NIST \cite{Nist_curve} and are specified in the following table.
-
- 
-\begin{longtable}{|c|p{13cm}|}
-
-\caption{NIST P-256 Curve Specifications} \\
-\hline
-\textbf{Name} & \textbf{Value} \\
-\hline
-\endfirsthead
-
-\multicolumn{2}{c}%
-{{\bfseries NIST P-256 Curve Specifications (continued)}} \\
-\hline
-\textbf{Name} & \textbf{Value} \\
-\hline
-\endhead
-
-\hline \multicolumn{2}{|r|}{{Continued on next page}} \\ \hline
-\endfoot
-
-\hline \hline
-\endlastfoot
-
-Curve Modulus p & 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff \\
-\hline
-Curve Coefficient a & 0xffffffff00000001000000000000000000000000fffffffffffffffffffffffc \\
-\hline
-Curve Coefficient b & 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b \\
-\hline
-Generator Point G & \begin{tabular}{@{}p{12cm}@{}} (0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296, \\ 0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5) \end{tabular} \\
-\hline
-Curve prime order n & 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551 \\
-\end{longtable}
-\textit{Note : These same curve parameters will be reused for ECDSA signature generation and verification as well as ECDH key pair generation.
-}
-
-These curve specifications have to be put in their specific adresses in PKA RAM in order to set the stage for elliptic curve operations on the P-256 curve. 
-
-Figure \ref{fig:curvo} demonstrates the code implementation of the curve parameters.
-
+\subsubsection{Result Reporting}
+To report CoreMark's results, the implementation of the benchmark relies on providing a definition to a function called ee\_printf, on high-end systems making use of operating systems, we can make use of the default implementation of the libc standard library's printf function.\par \noindent
+However, in our case, we do not have a defined standard output interface, so, we will be relying on STM32 MCUs' peripherals to share the data with the user.\par \indent
+Since benchmarks will mainly be done on boards, an important feature available on them is that the integrated ST-Link provides a VCP connected to one of the MCU's UART peripherals, allowing us to emulate the serial port over a USB connection.
+Therefore, we design our ee\_printf function, to send the data over the specified UART peripheral.
+Figures \ref{fig:ee_printf} and \ref{fig:send_char} below show the implementation details of the printing process.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=7cm]{img/ST_Summer_Internship/ee_printf.png}
+    \caption{CoreMark ee\_printf Function Definition}\label{fig:ee_printf}
+  \centering
+\end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=19cm]{img/ecdsa curve params code.png}
-    \caption{Code Implementation of NIST P-256 Parameters}
-    \label{fig:curvo}
+    \includegraphics[width=10cm]{img/ST_Summer_Internship/send_char.png}
+    \caption{Function to send a single character over UART}\label{fig:send_char}
+  \centering
 \end{figure}
-
-We will use PKA structures provided by the Hardware Abstraction Layer (HAL) to configure our curve parameters, as illustrated in Figure \ref{fig:ecc struct}.
-We have developed a function to fill in this structure's members with the NIST P-256 curve parameters as illustrated in Figure \ref{fig:pka_ecc_func}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=18cm]{img/ecc struct.png}
-    \caption{HAL PKA ECC Input Structure}
-    \label{fig:ecc struct}
+    \includegraphics[width=15cm]{img/ST_Summer_Internship/cm_results.png}
+    \caption{Sample CoreMark Results Transmitted over UART}\label{fig:cm_res_h7}
+  \centering
 \end{figure}
-
-
+\subsection{Running CoreMark Using Csolution Project Structure}
+After successfuly porting CoreMark to work on STM32 devices, the next step is to leverage the Csolution projcet structure within our CoreMark project.\par \noindent
+Following on the information provided in Chapter 2, Section \textbf{\ref{sec:csol_ps}}, the process of utilizing csolution project structure consists of creating the configuration files within our application.\par \noindent
+The main points to get the project working were:
+\begin{itemize}
+  \item Providing the source files to compile.
+  \item Providing the include paths.
+  \item Providing the target device and build types.
+  \item Providing the linker scripts for each compiler.
+\end{itemize}
+Section \ref{sec:cm_prj_csol} goes into further detail on the content of the files and the logical reasoning behind it.
+\subsection{Project Structure Definition}
+The csolution project structure offers multiple ways to embed software within your application, for example, since the CoreMark source files are static, we could have defined CoreMark as a software layer to be callable by any project we want to create.
+However, the most optimal approach is to compile all the source files into a single image, as providing the benchmark as a position independent code might result in sub-optimal performance,  especially with memory placements of critical sections of the code. Even with this approach, we can still logically divide our files into groups and have conditional compilation by leveraging features of the CMSIS environment.
+Figure \ref{fig:cm_struct} Describes the overall project structure, the Subecetion \ref{sec:cm_prj_arch} dives into the details of the architecture.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=15cm]{img/ecc func.png}
-    \caption{PKA ECC Setup}
-    \label{fig:pka_ecc_func}
+    \includegraphics[width=7cm]{img/ST_Summer_Internship/cm_prj_struct.png}
+    \caption{Overview of the CoreMark project structure}\label{fig:cm_struct}
+  \centering
 \end{figure}
+\subsection{Automation Analysis}
+At this point, with the overall architecture defined and the key points to get a project running on an STM32 device clear and made. The generation process still is manual, and we have multiple components of the system to keep in mind in order to get to a working state, such a process is error prone and isn't much different from manually setting up the project with the traditional approach via build systems such as CMake.
+The next step in the project was to analyze what we have done in the prior steps, and identify the processes we can automate.
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{}}
+	\caption{Automatable Patterns in CoreMark Project Generation\label{tab:auto_patterns}} \\
+	\toprule
+	\textbf{Automation Aspect} & \textbf{Description} \\
+	\midrule
+	\endfirsthead % Header for first page
 
-After setting up the elliptic curve parameters, we can generate the ECDSA public key using the ECDSA private key illustrated in Figure \ref{fig:ecdsa_priv_key}. Figure \ref{fig:pka_ecdsa_generate} shows the function used to generate the public key, and Figure \ref{fig:pka_pubkey_terminal1} shows the generated key, transmitted through USART to our terminal application. As previously mentioned in \ref{curve_param}, the ECDSA public key is a point on the elliptic curve which has a X and Y coordinate, each of them being 256 bits.
+	\multicolumn{2}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+	\toprule
+	\textbf{Automation Aspect} & \textbf{Description} \\
+	\midrule
+	\endhead % Header for subsequent pages
 
+	\multicolumn{2}{r}{{Continued on next page}} \\
+	\endfoot % Footer for all pages except last
+	\bottomrule
+	\endlastfoot % Footer for the last page
+    Device-Specific Naming & Multiple definitions, symbols, and file references follow a strict naming convention based on the target device. Examples include the Device Family Pack (DFP) name and device headers. These can be programmatically generated based on the target STM32 device identifier. \\
+    \midrule
+	UART Configuration & Source files include patterns tied to the selected UART peripheral (e.g., HAL handle names, initialization functions). Automating UART setup ensures consistent configuration across projects. \\
+    \midrule
+	Manual HAL/LL Driver Integration & Without STM32CubeMX, HAL and LL drivers must currently be copied manually. The structure of the STM32CubeFirmware directory and the online availability of firmware packages make it possible to automatically locate, download (if missing), and include only the minimal required modules for the target device. \\
+    \midrule
+	Project Structure and Templates & Core files such as startup code, linker scripts, and benchmark integration follow predictable patterns. These can be generated dynamically based on a predefined template, reducing repetitive manual work. \\
+    \midrule
+	Dependency Management & Ensuring the presence of external resources (e.g., DFP, STM32CubeFirmware) can be automated by checking the environment and fetching missing components, minimizing setup errors. \\
+\end{xltabular}
+After carefully reviewing the aspects provided in Table~\ref{tab:auto_patterns}, we can also derive the minimal required information to enable these aspects.
+\begin{itemize}
+    \item \textbf{Device Name:} The device name allows us to extract the majority of the data we need, from the device family, ARM Cortex-M core, even the FLASH memory size and pin count are available.
+    \item \textbf{UART Instance:} While this data can be extracted from the device name, we have opted for requiring this information to ensure consistency when taking devices yet to be released into consideration.
+\end{itemize}
+
+
+\subsection{Fully Automated Generation}
+After identifying the key points and the minimum required information to automate, we will then proceed to create the project generation tool labeled "cm\_gen".\par \noindent
+\textbf{cm\_gen} is a CLI tool written in Golang aimed to generate a fully functioning CoreMark project on STM32 devices using csolution project structure and works on all compilers out of the box.
+Figure~\ref{fig:cm_gen_seq} describes the workflow of the application from a high-level perspective, further details are provided in Section~\ref{sec:cm_gen}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=18cm]{img/ecdsa priv key.png}
-    \caption{ECDSA Private Key}
-    \label{fig:ecdsa_priv_key}
+    \includegraphics[width=11cm]{img/ST_Summer_Internship/seq_diag_cmgen.png}
+    \caption{cm\_gen Sequence Diagram}\label{fig:cm_gen_seq}
+  \centering
 \end{figure}
 
-
+\subsection{Project Validation}
+Validating the summer internship project consists of validating that the csolution based project structure works on STM32 devices.\par \noindent
+This was done by setting up and running the project on a device from every single STM32 MCU family, the results were then stored in an Microsoft Excel spreadsheet, compared to results obtained manually and in other work environments. After making sure everything works as intended, the spreadsheet became a reference and a baseline for CoreMark results across all STM32 MCU families and compiler toolchains.
+\section{CoreMark Project Architecture}
+\label{sec:cm_prj_arch}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=16cm]{img/pka_generate_ecdsa.png}
-    \caption{ECDSA Public Key Generation Function}
-    \label{fig:pka_ecdsa_generate}
+    \includegraphics[width=15cm]{img/ST_Summer_Internship/cm_arch_overview.png}
+    \caption{CoreMark Project Architecture Overview}\label{fig:cm_arch_overview}
+  \centering
 \end{figure}
+Figure~\ref{fig:cm_arch_overview} shows the overall architecture of the project, source files are divided into groups to highlight modularity. We can observe the extra information in the form of metadata and compiler flags we need to provide for the CMSIS-Toolbox to work as well.
+\par \noindent
+The following subsections dive into the details of each component of the project.
+\subsection{User Code}
+The user code component is made of two pairs of source/header files main and print\_config.
+\begin{itemize}
+    \item \textbf{Main:} The main header file imports the family's HAL header file. The main file contains the user application's entry point as well as the redefintion of the SysTick\_Handler function for reasons mentioned in the Subsection~\ref{sec:systick_interrupt}, the entry point executes the following sequence then enters an empty infinite loop:
+        \begin{itemize}
+            \item Calls the HAL initializer function
+            \item Calls the print configuration function
+            \item Calls the CoreMark benchmark's entry function
+        \end{itemize}
+    \item \textbf{Print Configuration:} The header file declares the exported functions to be called, the source file provides the implementation, these functions are the UART peripheral initialization and the implementation of the send\_char function show in Figure~\ref{fig:send_char}.
+\end{itemize}
+\subsection{Modifiable Files}
+The modifiable group is a set of files meant to be altered by the user in case they want to change the behaviour and state of the system when executing CoreMark.
+\begin{itemize}
+    \item \textbf{Linker Scripts:} The linker script defines the memory layout of the application, in the CoreMark application, the default linker scripts are a static sample that offers the bare minimum to get the project running:
+        \begin{itemize}
+            \item \textbf{Entry Point:} The execution's entry point is different from the user application's entry point, as there's initial setup to be done before entering the user application, this symbol is provided to the linker script in order to know where to start executing.
+            \item \textbf{Memory Regions:} The linker script defines two main regions, \textbf{ROM} and \textbf{RAM}, the ROM region, is a 64KB region starting at address 0x08000000, it is meant to hold all text symbols, where as RAM is a 12KB region starting at address 0x20000000, it contains all the data symbols and non initialized variables.
+            \item \textbf{Sections:} For the IAR and ARM compilers, regions are equivalent to sections, you only have to define the type of data provided to each region based on permissions (\textbf{R}ead, \textbf{W}rite, E\textbf{x}ecute), however, for gcc, sections are the containers of symbols, we then specificy in which memory region each section resides. Therefore we define the following sections:
+            \begin{itemize}
+                \item \textbf{Text:} This section contains the instructions of the program. It is typically placed in the ROM memory region  and is marked with execute permissions.
+                \item \textbf{Data:} This section stores initialized data, such as global or static variables with predefined values. It is placed in the RAM memory region and requires read and write permissions to allow the program to access and modify these variables during execution.
+                \item \textbf{BSS:}  The BSS section contains uninitialized data, similar to the data section, the difference is that the startup file zeroes out this section by default.
+            \end{itemize}
+        \end{itemize}
+    \item \textbf{Startup Files:} The startup file defines the interrupt vector table, defining a default weak implementation for each interruption, also, it defines the entry point function, typically named \textbf{Reset\_Handler}, this function starts by copying the appropriate data from ROM to RAM, and zeroes out the BSS section, afterwards it calls the System Initialization function (System\_Init), libc's initialization function and finally jumps into the user application's code.
+    \item \textbf{System Files:} The system header/source files pair implements core system-level initialization functions.
+            \begin{itemize}
+                \item Configure the clock tree and default peripheral states at reset.
+                \item Provide global variables like \texttt{SystemCoreClock} used by CMSIS and HAL drivers.
+                \item Setup memory banks and the Vector table location and offset addresses.
+            \end{itemize}
+\end{itemize}
+\subsection{Static Folders}
+\subsubsection{Driver}
+The driver group contains the necessary files from the HAL/LL libraries to get the RCC and UART peripherals working, the modules used are :
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{}}
+	\caption{HAL Modules Used in the CoreMark Project\label{tab:hal_modules}} \\
+	\toprule
+	\textbf{Module} & \textbf{Description} \\
+	\midrule
+	\endfirsthead % Header for first page
 
+	\multicolumn{2}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+	\toprule
+	\textbf{Module} & \textbf{Description} \\
+	\midrule
+	\endhead % Header for subsequent pages
 
+	\multicolumn{2}{r}{{Continued on next page}} \\
+	\endfoot % Footer for all pages except last
+	\bottomrule
+	\endlastfoot % Footer for the last page
+    RCC & Provides functions to configure and control the system clock, oscillators, and peripheral clock sources. \\
+    \midrule
+    FLASH & Manages FLASH memory operations such as wait states configuration and access control for optimal performance. \\
+    \midrule
+    PWR & Handles power control features, including voltage scaling and low-power modes. \\
+    \midrule
+    GPIO & Configures and controls general-purpose input/output pins, including alternate functions for peripherals. \\
+    \midrule
+    UART & Provides initialization and data transfer functions for UART communincation. \\
+\end{xltabular}
+\subsubsection{CoreMark}
+The coremark folder contains coremark's source code and ee\_printf implementation as describe in Table~\ref{tab:coremark_files}.
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{}}
+    \caption{CoreMark Source Files\label{tab:coremark_files}} \\
+    \toprule
+    \textbf{File} & \textbf{Description} \\
+    \midrule
+    \endfirsthead
 
+    \multicolumn{2}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+    \toprule
+    \textbf{File} & \textbf{Description} \\
+    \midrule
+    \endhead
 
+    \multicolumn{2}{r}{{Continued on next page}} \\
+    \endfoot
+    \bottomrule
+    \endlastfoot
 
+    core\_main.c & Contains the main CoreMark benchmark logic and workload orchestration. \\
+    \midrule
+    core\_state.c & Implements the state machine used by the CoreMark benchmark algorithms. \\
+    \midrule
+    core\_util.c & Provides utility functions such as CRC calculations and benchmark support routines. \\
+    \midrule
+    core\_matrix.c & Implements the matrix manipulation workload used by CoreMark. \\
+    \midrule
+    core\_list\_join.c & Implements the linked-list joining workload used to stress pointer-chasing and memory allocation patterns. \\
+    \midrule
+    core\_portme.c & Bare-metal porting layer connecting CoreMark to the STM32 platform, including timing and initialization. \\
+    \midrule
+    core\_portme.h & Header file for platform-specific definitions and configuration options used in \texttt{core\_portme.c}. \\
+    \midrule
+    ee\_printf.c & Minimal implementation of \texttt{ee\_printf} function used for serial output of benchmark results. \\
+\end{xltabular}
+\newpage
+\subsection{Csolution Files}
+\label{sec:cm_prj_csol}
+\subsubsection{Solution File}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=15cm]{img/ecdsa pubkey.png}
-    \caption{Generated ECDSA Public Key}
-    \label{fig:pka_pubkey_terminal1}
+    \includegraphics[width=10cm]{img/ST_Summer_Internship/csol_cm.png}
+    \caption{csolution file contents}\label{fig:csol_cm}
+  \centering
 \end{figure}
-
-\subsection{ECDH Key Pair Generation}
-This is the second step of the demo. Similarly to the previous step, we will use PKA to generate the ECDH public key.
-
-    \subsubsection{ECC Scalar Multiplication}
-    The key generation process using "ECC Fp scalar multiplication" is the same for ECDSA and ECDH, as described in Figure \ref{fig:PKA ECC}. We will use the same PKA structure as in ECDSA key generation as illustrated in Figure \ref{fig:ecc struct}.
-
-    The ECDH private key illustrated in Figure \ref{fig:ecdh_priv} is used along with the function shown in Figure \ref{fig:ecc_generate} in order to generate the ECDH public key, which is shown in Figure \ref{fig:ecc_pub}.
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=15cm]{img/ecdh private}
-    \caption{ECDH Private Key}
-    \label{fig:ecdh_priv}
-    \end{figure}
-
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=13cm]{img/ecdh generate.png}
-    \caption{ECDH Public Key Generation Function}
-    \label{fig:ecc_generate}
-    \end{figure}
-
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=13cm]{img/ecdh pub key.png}
-    \caption{Generated ECDH Public Key }
-    \label{fig:ecc_pub}
-    \end{figure}
-
-\subsection{ECDSA Signature Generation}    
-%In order to ensure authenticity of the message exchange, we need to generate an ECDSA signature that will be sent along with the ECDSA public key to be used for signature verification.
-
-To generate an ECDSA signature, we will use the PKA mode illustrated in Figure \ref{fig:ecdsa_sign_tab} \cite{U5_Refman}.
- \begin{figure}[H]
-    \centering
-    \includegraphics[width=14cm]{img/ecdsa sign2.png}
-    \caption{ECDSA Sign Operation }
-    \label{fig:ecdsa_sign_tab}
-    \end{figure}
-
- We will use the PKA ECDSA signature structure provided by the HAL driver shown in Figure \ref{fig:ecdsa struct} along with the function shown in \ref{fig:ecdsa func} to input the signature parameters in PKA RAM.
-
+The csolution file for our project defines the following information:
+\begin{itemize}
+    \item \textbf{Compiler Selection:} Lists all three compilers, GCC, IAR and ARM v6.
+    \item \textbf{Software Packs:} The device's DFP and the ARM CORE pack.
+    \item \textbf{Target Selection:} The full name of the device to be used.
+    \item \textbf{Build Types:} In correspondence to the CoreMark run types.
+\end{itemize}
+\subsubsection{Project File}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{img/ecdsa struct.png}
-    \caption{HAL PKA ECDSA Input Structure}
-    \label{fig:ecdsa struct}
-    \end{figure}
+    \includegraphics[width=10cm]{img/ST_Summer_Internship/cproj_cm.png}
+    \caption{Extract of cproject file contents}\label{fig:cproj_cm}
+  \centering
+\end{figure}
+\newpage
+The cproject file for our project defines the following information:
+\begin{itemize}
+    \item \textbf{Software Components:} Which components to use from each software pack
+    \item \textbf{Include Paths:} The locations of the header files to include which are all the folders in our case.
+    \item \textbf{Linker scripts} The location of each linker script per compiler toolchain.
+    \item \textbf{Source Files Groups:} The list of all the source files to compile.
+\end{itemize}
+\subsubsection{Default File}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=15cm]{img/ST_Summer_Internship/cdef_cm.png}
+    \caption{Extract of cdefault file contents}\label{fig:cdef_cm}
+  \centering
+\end{figure}
+The cdefault file contains compiler specific miscellaneous configurations that are propagated to all contexts and projects.
+\section{Project Generation Tool}
+\label{sec:cm_gen}
+\subsection{Overview}
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=15cm]{img/ST_Summer_Internship/cm_df_diag.png}
+    \caption{cm\_gen DataFlow Diagram}\label{fig:cm_df_diag}
+  \centering
+\end{figure}
+Figure~\ref{fig:cm_df_diag} showcases how data moves through the different components of the project generation tool, highlighting the inter-dependencies and integration of external resources and tools.
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=15cm]{img/ST_Summer_Internship/cm_internal_seq.png}
+    \caption{Sequence Diagram describing cm\_gen's internal architecture}\label{fig:cm_internal_seq}
+  \centering
+\end{figure}
+Figure~\ref{fig:cm_internal_seq} describes the internal workflow of the cm\_gen tool, it emphasizes the modularity of the application as well as conformity to software development best practices such as the SOLID principles.
+These diagrams help us to understand how cm\_gen works, we can divide its lifetime into two main components:
+\begin{itemize}
+    \item \textbf{Data Extraction Phase:} The tool takes the user input, and extracts all the necessary information to generate a CoreMark project.
+    \item \textbf{Build Phase:} The tool starts building the necessary components of the CoreMark project.
+\end{itemize}
+\subsubsection{Resources}
+The project uses multiple resources to function, these are made external and not embedded within the application's source code to ensure extensibility in the future. The resources are divided into two main categories.
+\begin{itemize}
+    \item \textbf{JSON Metadata Files:} These files contain information concerning devices and drivers.
+        \begin{itemize}
+            \item \textbf{device.json:} The device.json file consists of objects containing key value pairs that map the STM32 MCU name codification to corresponding values to be used throughout the program:
+                \begin{itemize}
+                    \item \textbf{Family To Processor:} This object maps each family to its corresponding Core.
+                    \item \textbf{Pin Count:} The first character proceeding the device number indicates the pin count of the device, this object maps the character to the corresponding pin count.
+                    \item \textbf{Flash Size:} The second character proceeding the device number indicates the FLASH size of the device, this object maps the character to the corresponding FLASH size.
+                    \item \textbf{Packaging type:} The third character proceeding the device number indicates the packaging type of the device, this object maps the character to the corresponding packaging type.
+                \end{itemize}
+            \item \textbf{hal.json/hal2.json:} These files contain all the possible modules to be enabled by the CoreMark project in order to work, they contain an array listing these modules, the seperation of HAL versions is because of the difference in naming conventions and needed files.
+        \end{itemize}
+    \item \textbf{Template Files:} These files are the base to be used in order to dynamically create context specific versions, they follow the original file's name with the added gotmpl extension. Below is a list of all template files:
+        \begin{itemize}
+            \item main.c/h.gotmpl
+            \item print\_config.c/h.gotmpl
+            \item coremark.csolution.yml.gotmpl
+            \item coremark.cproject.yml.gotmpl
+        \end{itemize}
+\end{itemize}
+\subsubsection{Available Options}
+The first operation when invoking the tool is to parse the passed option flags in order to extract the information concerning project generation, Table~\ref{tab:cm_gen_flags} below lists all available options within the application.
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}l X@{} X@{} X@{}}
+	\caption{Project Generation Tool options\label{tab:cm_gen_flags}} \\
+	\toprule
+    \textbf{Option} & \textbf{Flag} & \textbf{Description} & \textbf{Example Value}\\
+	\midrule
+	\endfirsthead % Header for first page
 
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=17cm]{img/ecdsa_func.png}
-    \caption{HAL PKA ECDSA Input Structure}
-    \label{fig:ecdsa func}
-    \end{figure}
+	\multicolumn{4}{c}{{\tablename\ \thetable{} -- Continued from previous page}} \\
+	\toprule
+    \textbf{Option} & \textbf{Flag} & \textbf{Description} & \textbf{Example Value}\\
+	\midrule
+	\endhead % Header for subsequent pages
 
-    Compared to public key generation, generating the signature requires a new private parameter called "k" which is a 256-bit number only used once to generate the signature. The integer "k" used for this demo is shown in Figure \ref{fig:ecdsa_k}. The signature generation also uses a hash message, which in our demonstration is pre-shared between the two parties.
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=17cm]{img/ecdsa k.png}
-    \caption{ECDSA Integer "K"}
-    \label{fig:ecdsa_k}
-    \end{figure}
-    After setting up the ECDSA HAL structure, we can launch the ECDSA signing operation using the function shown in Figure \ref{fig:ecdsa func2}.
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=17cm]{img/ecdsa func2.png}
-    \caption{ECDSA Signing Function}
-    \label{fig:ecdsa func2}
-    \end{figure}
-
-    The generated signature is composed of two parts "Signature R" and "Signature S", each being 256 bits long. Figure \ref{fig:ecdsa_rs} shows the output of the signing operation.
-    
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=17cm]{img/signature rs.png}
-    \caption{Generated ECDSA Signature}
-    \label{fig:ecdsa_rs}
-    \end{figure}
-
-    \subsection{ECDSA Public Key and Signature Exchange}
-    After having generated the ECDSA public keys and signatures, the two MCUs exchange these parameters using USART. Exchanging these parameters is crucial for the following step, which is signature verification, to ensure the authenticity of the communication.
-    
-    Figure \ref{fig:received sign} shows the ECDSA public key and signature received by "Bob" which were generated by "Alice". 
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=16cm]{img/received sigpub.png}
-    \caption{Received ECDSA Signature}
-    \label{fig:received sign}
-    \end{figure}
-
-    \subsection{ECDSA Signature Verification}
-    In this step, each device verifies the ECDSA signature sent by the other party using the PKA mode "ECDSA Verification" shown in Figure \ref{fig:ecdsa verif} \cite{U5_Refman}.
-    A lot of the same curve parameters are the same as ECDSA signature generation , with the addition of the received public key and signature parameters.
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=16cm]{img/ecdsa verify.png}
-    \caption{PKA "ECDSA Verification" Mode}
-    \label{fig:ecdsa verif}
-    \end{figure}
-
-    Figure \ref{fig:ecdsa verif func} shows the code implementation of the ECDSA signature verification process.
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=18cm]{img/ecdsa verif func.png}
-    \caption{ECDSA Verification Function }
-    \label{fig:ecdsa verif func}
-    \end{figure}
-    
-   There are two outcomes to signature verification. Figure \ref{fig:verif out} shows the output of a successful signature verification process, which allows to go on to establish ECDH key exchange, while Figure \ref{fig:ecdsa verif fail} shows the output of a failed signature verification which abruptly ends the communication. 
-   
-   \begin{figure}[H]
-    \centering
-    \includegraphics[width=18cm]{img/verif out.png}
-    \caption{Successful ECDSA Signature Verification}
-    \label{fig:verif out}
-    \end{figure}
-    
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=18cm]{img/verif fail.png}
-    \caption{Failed ECDSA Signature Verification}
-    \label{fig:ecdsa verif fail}
-    \end{figure}
-
-    \subsection{ECDH Public Key Exchange}
-    Now that the two parties have verified each other's signature, we can proceed knowing that authenticity has been assured. The next step is to establish a shared secret which will serve as a basis for establishing a symmetric encryption key. For that, the two devices must exchange the ECDH public keys generated at the start of the demo via USART. Figure \ref{fig:ecdh_pub} shows the terminal output of the ECDH public key reception process.
-    
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=17cm]{img/received ecdh pub.png}
-    \caption{Received ECDH Public Key}
-    \label{fig:ecdh_pub}
-    \end{figure}
-    
-    \subsection{ECDH Shared Secret Generation}
-    Having exchanged the ECDH public keys, each device will independently calculate the ECDH shared secret which will be a point on the elliptic curve. This point is obtained through multiplying the device's own ECDH private key with the received ECDH public key. Naturally, both devices should obtain the same common 512-bit shared secret.
-
-    Shared secret generation is done through ECC scalar multiplication, meaning we will use the PKA mode "ECC Fp scalar multiplication" which has been detailed in Figure \ref{fig:PKA ECC} \cite{U5_Refman}.
-
-    Figure \ref{fig:shared sec} illustrates the code implementation of ECDH shared secret generation, and Figure \ref{fig:shared sec out} shows the output result of this operation.
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=17cm]{img/shared sec.png}
-    \caption{ECDH Shared Secret Generation Function}
-    \label{fig:shared sec}
-    \end{figure}
-
-    
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=17cm]{img/shared sec out.png}
-        \caption{ECDH Shared Secret}
-    \label{fig:shared sec out}
-    \end{figure}
-    \subsection{AES GCM Key and IV Derivation}
-    Having established the shared secret, we will now derive from it the symmetric encryption key as well as the initialization vector which are needed for AES GCM .
-    Usually, this process would involve a key derivation function and the use of complicated algorithms, but for the purposes of the simplicity of the demo  we opted to take the X coordinate of the ECDH shared secret as the 256-bit AES Key and the first 96 bits of the Y coordinate as the initialization vector.
-    \subsection{AES GCM Symmetric Encryption}
-    For this step, we will use the AES peripheral structure provided by the HAL driver provided in Figure \ref{fig:aes struct}. We will initialize the peripheral's structure as shown in Figure \ref{fig:aes init}, where we select a 256-bit key size and AES GCM mode.
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=18cm]{img/aes struct.png}
-        \caption{AES HAL Structure}
-    \label{fig:aes struct}
-    \end{figure}
-
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=10cm]{img/aes init.png}
-        \caption{AES Structure Initialization}
-    \label{fig:aes init}
-    \end{figure}
-
-    All that is left is to derive the AES key and initialization vector from the ECDH shared secret as shown in Figure \ref{fig:deriv}.
-    
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=12cm]{img/deriv.png}
-        \caption{AES GCM Key and Initialization Vector Derivation}
-    \label{fig:deriv}
-    \end{figure}
-
-    On the "Bob" side, we will encrypt and send the message "This is Bob" along with the tag that will help in verifying the integrity of the message. Figure \ref{fig:bob hello} demonstrates the plaintext, ciphertext and tag generated by the encryption process. Note that the "\%" symbol was added for extra padding since the AES peripheral expects a 128-bit input.
-
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=12cm]{img/bob hello.png}
-        \caption{AES GCM Key and Initialization Vector Derivation}
-    \label{fig:bob hello}
-    \end{figure}
-
-    \subsection{Message Decryption and Tag Verification}
-    The two devices exchange the encrypted messages and the generated tags. They must now decrypt the message while regenrating a tag. If the received tag is the same as the generated decryption tag, that means the message has been decrypted succesfully. Figure \ref{fig:tag} shows the decryption process on the "Bob" side which shows the correct decryption of the "Alice" message ("This is Alice").
-    
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=14cm]{img/end of demo.png}
-        \caption{Message Decryption Output}
-    \label{fig:tag}
-    \end{figure}
-The matching of the tags proves that the message was transmitted correctly and without any manipulation. It also ensures that the two sides have managed to derive the exact same symmetric key from the shared secret generation process, meaning that a secure line of communication has been succesfully established between the two devices.
+	\multicolumn{4}{r}{{Continued on next page}} \\
+	\endfoot % Footer for all pages except last
+	\bottomrule
+	\endlastfoot % Footer for the last page
+    Device Name & --device & The devices name the CoreMark project will be generated for & STM32H743ZITx \\
+    \midrule
+    UART Handle & --uart\_handle & The UART peripheral to use for transmitting CoreMark results & USART3 \\
+    \midrule
+    UART Transmit Pin & --uart\_pin & The UART peripheral's transmit pin number & GPIO\_PIN\_3 \\
+    \midrule
+    UART Transmit GPIO & --uart\_gpio & The UART peripheral's transmit pin GPIO & GPIOD \\
+    \midrule
+    UART Alternate Function & --uart\_af & The UART peripheral's transmit pin alternate function & AF7 \\
+    \midrule
+    Strict Device Checking & --strict & If present, checks the existence of the device name against ST's device database & Boolean \\
+    \midrule
+    HAL2 & --HAL2 & If present, use HAL2 drivers and structure instead of HAL & Boolean \\
+    \midrule
+    Cortex-M Security Extension & --cmse & If present, the project is created as a secure application in the TrustZone context & Boolean \\
+    \midrule
+    Project Directory Path & --dir & Specifies the the directory in which the project will be generated, defaults to the current directory & \$HOME/STM32H7\_CoreMark \\
+    \midrule
+    Firmware Path & --fw\_path & Specifies the location of the device's family's STM32CubeFirmware & \$HOME/stm32\_h7\_fw \\
+    \midrule
+    Firmware Repository Path & --fw\_repo & Specifies the parent folder of the device's family's STM32CubeFirmware, defaults to the STM32Cube/Repository folder under the User profile's folder& \$HOME/STM32Cube/Repository \\
+    \midrule
+    Processor Cache & --scb\_cache & If present and available, enable the Cortex-M processor's cache & Boolean \\
+    \midrule
+    HAL Cache Peripheral & --hal\_cache & If present and available, enable ST's cache peripheral& Boolean \\
+\end{xltabular}
+Each of the subsequent sections makes use of one or multiple of these options.
+After parsing the flags, they are passed to the data modules within the application to construct the appropriate Data classes.
+\subsection{Device Configuration}
+The device configuration module only requires the device name as input to construct the necessary information modeling the device, optionally if the strict option is provided, the device name validation happens in this component. \par \noindent
+The first step is to load the device.json file. We then construct the regex allowing us to validate the device name, we join the list of keys from the device.json file's objects with the "|" symbol as a separator, the generated regex would look like\newline\texttt{STM32(Family names)[A-Z0-9]\{2\}(Pin Counts)(FLASH Sizes)(Package Type)X[A-Z]?} \newline If valid, exposes the information via a global data object.
+\subsection{UART Configuration}
+The UART configuration module simply checks each UART flag against a basic regex to conform to the ST drivers' naming convention and fills the data class structure with the information.
+\subsection{Extra Configuration}
+The Extra configuration modules checks the rest of the flags, ensuring locations exist and the compatibility of flags with the device, (e.g. you cannot enable the processor's cache with a device that doesn't support it), and the generates the last data object to be used in the execution phase.
+\subsection{Firmware Management}
+This part of the application checks for the validity of the firmware path within the extra configuration's amalgamated path, if it is invalid it prompts the user to download a valid version from the internet, specifically, ST distrubtes the firmware publicly on a GitHub repository following a standard naming convention that can be derived from the device family.
+\subsection{File Extraction}
+While abstractions speed up the development process and provide a reliable way to communicate with the targeted peripheral, they come at the cost of having a very high memory footprint, this side-effect might cause performance degradations as it effects memory alignments, and might even eat up entire high speed regions such as TCM and cause more cache misses. Therefore, reducing this effect to the maxmium is required, and that is done in this part of the process, since we know which modules we need to add, these are the only ones whose files will be copied.
+\par \noindent
+For HAL and LL files, they follow a simple naming convention that can be expressed by the following regex : \texttt{stm32(device family)\_(hal|ll)\_(peripheral name)(\_ex)?.c/h}
+\par \noindent
+For CMSIS files, which are the startup and system source files, as well as the device and system headers, the naming convention relies on the device number, and sometimes on the device metadata as well. The common symbol to use is expressed as \texttt{stm32(device family)(device number)xx}, however as mentioned, the last two characters while most commonly are "x"'s can be the device's exact character, this is because sometimes the startup file or the system file might change behaviour depending on the specificities, and for devices that support TrustZone, each file is distributed in three distinct versions: secure, non-secure and a TrustZone disabled version.
+\subsection{File Processing}
+Even though most of the driver files can be copied directly into our CoreMark projects, some might not work out of the box, this is due to the nature of the file and what they are meant to serve within STM32 MCU ecosystem.
+\begin{itemize}
+    \item \textbf{Configuration Header:} The configuration header (stm32\_hal\_conf.h) file is the equivalent to a module manager within the STM32 ecosystem, it contains the macro defines that allows us to enable the needed modules, although they can be provided in the csolution project files, due to their amount, they would end up clustering files with unecessary information, therefore we opted to directly modify the template provided by ST in the STM32CubeFirmware package. This is done by reading the file into memory, reading line by line looking for matches to the modules we want to enable and uncommenting that define (by default all module defines are commented out).
+    \item \textbf{ARM Compiler Startup File:} For HAL where startup files are not unified C language files but are instead toolchain specific assembly files, the ARM Compiler toolchain has the quirk of defining the heap and stack sizes in the startup file instead of the linker file, therefore we have to manually change the symbols to values that allows CoreMark to run without memory overflows.
+    \item \textbf{Linker Files:} Although we use generic linker scripts for HAL projects, HAL2 based projects rely on the linker scripts provided within the STM32CubeFirmwareV2 package for the device, therefore, we manually change the stack and heap sizes defined within these files.
+\end{itemize}
+\subsection{Template Generation}
+The last part of the execution phase is to generate files based on the template resources we have, the standard library for Golang provides a very handful package "text/template" that we will be using, working with this package is very straight forward, it exposes an interface to load a template file, and then executing the template consists of making use of an other interface that takes the template handle and a data object as arguments, we then save the result to the desired file.
+\subsection{Build Information Generation}
+After generating the project, the last step before being able to build it is to generate build information, this is in the form of the build information files of the CMSIS-Toolbox such as cbuild.yml and cbuild-run.yml, as well as the RTE and .cmsis folders containing device specific information for the build stage. This is done by invoking the CMSIS-Toolbox utility \textbf{cbuild} with the setup subcommand and the csolution file as an argument.
+\subsection{Error Handling And Resilience}
+With the number of variables, options, external dependencies and interactions with the file system, multiple parts of the project can fail, therefore maintaining a robust error handling system is crucial in order to handle all cases.
+\begin{itemize}
+    \item \textbf{Invalid Flags:} for the crucial flags being the device name and UART information, errors will result in a non-working project, therefore the absence of these flags or their invalidity means that the program will terminate without proceeding any further, for all other flags, we simply revert to the default values and continue operating.
+    \item \textbf{Missing Resources:} As they are an integral part of the program, not being able to load them means the application will not be able to operate.
+    \item \textbf{Invalid Firmware:} In the case that the firmware is not available, or if for some reasons, doesn't provide the appropriate files, the program will fail gracefully, reverting all the changes it has done to the project directory.
+\end{itemize}
+\subsection{Extensibility And Future Proofing}
+\label{sec:fut_ext}
+cm\_gen was architectured in a way that allows for extensions, as it is meant to work on any STM32 device including those that are still in development and aren't even available as chips, therefore being future-proof is a must in these circumstances. This is done in two ways throughout the application:
+\begin{itemize}
+    \item  \textbf{External Resources:} By providing device and library metadata in external files, we allow the user to update and customize them without having to modify the application's source code.
+    \item  \textbf{Interfaces:} Providing implementations on how to extract files and process them depends a lot on the context, by providing a generic interface that the mediator within the application invokes in an abstracted way allows us to extend this interface in the future with different implementations that adhere to new needs that aren't present at the time.
+    \item  \textbf{Dynamic templating:} The data object passed to templates is a comprehensive union of all metadata within the data objects of the application as well as extra information derived during the earlier steps of the execution phase, therefore, the tempalte files can be modified in any way the user sees fit as long as it adheres to the dynamic variables' naming convention and making sure that these variables are provided by the data object.
+\end{itemize}
 \section*{Conclusion}
-This chapter provided a comprehensive review of the implementation steps for the "CryptoEngine" demo, which demonstrates secure communication between two microcontrollers using cryptographic techniques. We explored the generation and exchange of cryptographic keys, including ECDSA and ECDH keys, and the processes of signature generation, verification, and secure message exchange using AES GCM. We also included relevant code snippets and expected outputs for each step of the demonstration to provide a complete overview.
+In this chapter, we detailed the comprehensive process of implementing and automating the CoreMark benchmark for STM32 devices. The project began with porting CoreMark to STM32 microcontrollers, focusing on configuring the SysTick timer for precise performance measurements and implementing the \texttt{ee\_printf} function for result reporting via UART. We then transitioned to integrating the csolution project structure, which streamlined project setup by defining source files, include paths, and linker scripts. The development of the \texttt{cm\_gen} tool marked a significant milestone, enabling fully automated generation of CoreMark projects tailored to specific STM32 devices. This tool leveraged device metadata, UART configurations, and template-based file generation to reduce manual effort and minimize errors. Validation across all STM32 MCU families confirmed the robustness of the solution, with results benchmarked against manual setups. The modular architecture of \texttt{cm\_gen}, combined with its extensible design, ensures compatibility with future STM32 devices and evolving requirements. This work establishes a scalable, efficient framework for performance benchmarking, significantly enhancing development workflows for ST's embedded systems.
